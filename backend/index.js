@@ -21,6 +21,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
+
 app.use(bodyParser.json());
 
 // Connect to MongoDB
@@ -35,8 +36,8 @@ const interestMapping = { 'AI': 0, 'Machine Learning': 1, 'Data Science': 2, 'We
 
 
  // Import K-Means library
- const bodyParser = require("body-parser");
- app.use(bodyParser.json());
+
+ 
 
 app.post("/api/recommendStudents", async (req, res) => {
   const { skill, interest, participation } = req.body;
@@ -159,26 +160,6 @@ app.post('/api/login', async (req, res) => {
     res.status(200).json({ message: 'Login successful', user });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
-  }
-});
-
-
-app.get('/api/hackathons/upcoming', async (req, res) => {
-  try {
-    const upcomingHackathons = await Hackathon.find({ status: 'Open' });
-    res.json(upcomingHackathons);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Get past hackathons
-app.get('/api/hackathons/past', async (req, res) => {
-  try {
-    const pastHackathons = await Hackathon.find({ status: { $ne: 'Open' } });
-    res.json(pastHackathons);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
   }
 });
 
