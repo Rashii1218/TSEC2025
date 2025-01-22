@@ -1,15 +1,18 @@
-import { useState } from 'react'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import LandingPage from "./components/LandingPage";
+import AboutPage from "./components/About";
+import LoginPage from "./login/login";
 
-import LoginPage from './login/login'
-
-function App() {
-
-
+const App = () => {
   return (
-    <>
-      <LoginPage/>
-    </>
-  )
-}
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/login" element={<LoginPage />} />
+      </Routes>
+    </Router>
+  );
+};
 
-export default App
+export default App;
