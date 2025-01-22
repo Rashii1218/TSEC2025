@@ -9,13 +9,14 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 import DocumentEditor from "./Document";
+import VideoCall from "./VideoCall";
 const App = () => {
  
 
 
   return (
     <>
-      <DocumentEditor/>
+      <DocumentEditor />
     </>
   );
 };
