@@ -1,15 +1,17 @@
-// Backend (Express Application)
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
-const User = require('./models/User');
+
+
+const xlsx = require('xlsx'); // For reading Excel files if needed
+const User = require('./models/User'); // MongoDB User model
 
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
-
+const kmeans = require('node-kmeans');
 // Middleware configurations
 app.use(cors({
   credentials: true,
@@ -18,11 +20,120 @@ app.use(cors({
 app.use(express.json());
 
 // Connect to MongoDB
-mongoose.connect('mongodb+srv://maureenmiranda22:PqxEHalWziPVqy7n@cluster0.ive9g.mongodb.net/hack_04d?retryWrites=true&w=majority&appName=Cluster0', {
+mongoose.connect(process.env.MONGO_URI || 'mongodb+srv://maureenmiranda22:PqxEHalWziPVqy7n@cluster0.ive9g.mongodb.net/hack_04d?retryWrites=true&w=majority&appName=Cluster0', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-}).then(() => console.log('Connected to MongoDB'));
+}).then(() => console.log('Connected to MongoDB')).catch((err) => console.error('Failed to connect to MongoDB:', err));
 
+// Helper function to map skills and interests to numerical values
+const skillMapping = { 'Python': 0, 'Java': 1, 'C++': 2, 'JavaScript': 3, 'HTML/CSS': 4, 'Data Science': 5, 'Machine Learning': 6, 'AI': 7, 'Cloud Computing': 8, 'Cybersecurity': 9 };
+const interestMapping = { 'AI': 0, 'Machine Learning': 1, 'Data Science': 2, 'Web Development': 3, 'Cloud Computing': 4, 'Blockchain': 5, 'Cybersecurity': 6, 'Game Development': 7, 'Software Engineering': 8, 'Automation': 9 };
+
+
+ // Import K-Means library
+ const bodyParser = require("body-parser");
+ app.use(bodyParser.json());
+
+app.post("/api/recommendStudents", async (req, res) => {
+  const { skill, interest, participation } = req.body;
+
+  if (!skill || !interest || typeof participation !== "number") {
+    return res.status(400).json({ message: "Invalid input data" });
+  }
+
+  try {
+    // Load the data from the Excel file
+    const workbook = xlsx.readFile("./data.xlsx");
+    const sheetName = workbook.SheetNames[0];
+    const excelData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+    // Preprocess Excel data
+    const combinedData = excelData.map(row => ({
+      skills: row.skills || "",
+      interests: row.interests || "",
+      participation: parseInt(row.participation || 0, 10),
+      name: row.name || "Unknown",
+    }));
+
+    // Convert data for clustering
+    const skillMapping = {};
+    const interestMapping = {};
+    let skillIndex = 0;
+    let interestIndex = 0;
+
+    const transformedData = combinedData.map(user => {
+      if (!(user.skills in skillMapping)) {
+        skillMapping[user.skills] = skillIndex++;
+      }
+      if (!(user.interests in interestMapping)) {
+        interestMapping[user.interests] = interestIndex++;
+      }
+      return [
+        skillMapping[user.skills],
+        interestMapping[user.interests],
+        user.participation,
+      ];
+    });
+
+    // Add input data to the dataset
+    if (!(skill in skillMapping)) {
+      skillMapping[skill] = skillIndex++;
+    }
+    if (!(interest in interestMapping)) {
+      interestMapping[interest] = interestIndex++;
+    }
+    const inputData = [
+      skillMapping[skill],
+      interestMapping[interest],
+      participation,
+    ];
+    transformedData.push(inputData);
+
+    // Perform K-Means clustering
+    kmeans.clusterize(transformedData, { k: 5 }, (err, result) => {
+      if (err) {
+        console.error("Error during clustering:", err);
+        return res.status(500).json({ message: "Clustering failed" });
+      }
+
+      const clusters = result.map(cluster => cluster.cluster);
+      const centroids = result.map(cluster => cluster.centroid);
+
+      // Find the closest cluster to the input data
+      let closestClusterIndex = -1;
+      let minDistance = Infinity;
+      centroids.forEach((centroid, index) => {
+        const distance = Math.sqrt(
+          centroid.reduce((sum, value, i) => sum + (value - inputData[i]) ** 2, 0)
+        );
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestClusterIndex = index;
+        }
+      });
+
+      // Get students from the closest cluster
+      const similarStudents = clusters[closestClusterIndex].map(index => ({
+        Name: combinedData[index] ? combinedData[index].name : "Unknown",
+        SimilarityScore: Math.sqrt(
+          transformedData[index].reduce(
+            (sum, value, i) => sum + (value - inputData[i]) ** 2,
+            0
+          )
+        ),
+      }));
+
+      // Sort by similarity score
+      similarStudents.sort((a, b) => a.SimilarityScore - b.SimilarityScore);
+
+      // Return the top 10 similar students
+      res.status(200).json(similarStudents.slice(0, 10));
+    });
+  } catch (err) {
+    console.error("Error processing request:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 // Login endpoint
 app.post('/api/login', async (req, res) => {
   const { username, password, role } = req.body;
@@ -47,9 +158,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// Start server
+// Start the server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
-
-
