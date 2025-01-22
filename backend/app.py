@@ -3,7 +3,9 @@ import pandas as pd
 import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import LabelEncoder
-
+import sendgrid
+from sendgrid.helpers.mail import Mail, Email, To, Content
+import requests
 # Custom styling
 st.markdown("""
 <style>
@@ -52,8 +54,25 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-def send_email(to_email, subject, message):
-    st.success(f"Email sent to {to_email} with subject: '{subject}' and message: '{message}'")
+def send_simple_message():
+    
+    sg = sendgrid.SendGridAPIClient(api_key='YOUR_SENDGRID_API_KEY')
+    
+    #  email parameters
+    from_email = Email("your_verified_sender_email@domain.com")  # verified SendGrid sender email
+    to_email = To("isha.bamel22@gmail.com")
+    subject = "Request to join team"
+    content = Content("text/plain", "Hey, I want to join your team")
+
+    # Create the Mail object
+    mail = Mail(from_email, to_email, subject, content)
+
+    try:
+        # Send the email and capture the response
+        response = sg.send(mail)
+        print(f"Email sent successfully! Status Code: {response.status_code}")
+    except Exception as e:
+        print(f"Error occurred: {e}")
 
 @st.cache_data
 def load_data(file_path):
@@ -109,7 +128,7 @@ tab1, tab2 = st.tabs(["🎯 Custom Search", "🎨 Personal Recommendations"])
 with tab1:
     st.markdown('<p class="section-header">Find Your Perfect Team</p>', unsafe_allow_html=True)
     
-    file_path = "data.xlsx"
+    file_path = "dataset.xlsx"
     data = load_data(file_path)
     
     if data is not None:
@@ -177,8 +196,7 @@ if st.session_state.recommendations is not None:
         </div>
         """, unsafe_allow_html=True)
         if st.button(f"📧 Connect with {student['Name']}", key=f"connect_{student['Name']}"):
-            send_email("dcmaureenmiranda@gmail.com", "Team Collaboration Request", 
-                      f"Hi {student['Name']}, would you like to collaborate with me?")
+            send_simple_message()
 
 if st.session_state.hardcoded_recommendations is not None:
     st.markdown('<p class="section-header">✨ Personal Matches</p>', unsafe_allow_html=True)
