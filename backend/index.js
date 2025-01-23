@@ -1,411 +1,112 @@
-const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const dotenv = require('dotenv');
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
+const ProjectDashboard = ({ owner, repo }) => {
+  const [projectData, setProjectData] = useState(null);
 
-
-const xlsx = require('xlsx'); // For reading Excel files if needed
-const User = require('./models/User'); // MongoDB User model
-const Hackathon = require('./models/Hackathons');
-const bodyParser = require('body-parser');
-const Feedback = require('./models/Teams');
-const Team = require('./models/RTeam');
-dotenv.config();
-const app = express();
-const port = process.env.PORT || 3000;
-const kmeans = require('node-kmeans');
-// Middleware configurations
-app.use(cors({
-  credentials: true,
-  origin: 'http://localhost:5173',
-}));
-app.use(express.json());
-
-
-app.use(bodyParser.json());
-
-// Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI || 'mongodb+srv://maureenmiranda22:PqxEHalWziPVqy7n@cluster0.ive9g.mongodb.net/hack_04d?retryWrites=true&w=majority&appName=Cluster0', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => console.log('Connected to MongoDB')).catch((err) => console.error('Failed to connect to MongoDB:', err));
-
-// Helper function to map skills and interests to numerical values
-const skillMapping = { 'Python': 0, 'Java': 1, 'C++': 2, 'JavaScript': 3, 'HTML/CSS': 4, 'Data Science': 5, 'Machine Learning': 6, 'AI': 7, 'Cloud Computing': 8, 'Cybersecurity': 9 };
-const interestMapping = { 'AI': 0, 'Machine Learning': 1, 'Data Science': 2, 'Web Development': 3, 'Cloud Computing': 4, 'Blockchain': 5, 'Cybersecurity': 6, 'Game Development': 7, 'Software Engineering': 8, 'Automation': 9 };
-
-
- // Import K-Means library
-
- 
-
-app.post("/api/recommendStudents", async (req, res) => {
-  const { skill, interest, participation } = req.body;
-
-  if (!skill || !interest || typeof participation !== "number") {
-    return res.status(400).json({ message: "Invalid input data" });
-  }
-
-  try {
-    // Load the data from the Excel file
-    const workbook = xlsx.readFile("./data.xlsx");
-    const sheetName = workbook.SheetNames[0];
-    const excelData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
-
-    // Preprocess Excel data
-    const combinedData = excelData.map(row => ({
-      skills: row.skills || "",
-      interests: row.interests || "",
-      participation: parseInt(row.participation || 0, 10),
-      name: row.name || "Unknown",
-    }));
-
-    // Convert data for clustering
-    const skillMapping = {};
-    const interestMapping = {};
-    let skillIndex = 0;
-    let interestIndex = 0;
-
-    const transformedData = combinedData.map(user => {
-      if (!(user.skills in skillMapping)) {
-        skillMapping[user.skills] = skillIndex++;
+  useEffect(() => {
+    const fetchProjectData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/project-data`, {
+          params: { owner, repo },
+        });
+        setProjectData(response.data);
+      } catch (error) {
+        console.error('Error fetching project data:', error);
       }
-      if (!(user.interests in interestMapping)) {
-        interestMapping[user.interests] = interestIndex++;
-      }
-      return [
-        skillMapping[user.skills],
-        interestMapping[user.interests],
-        user.participation,
-      ];
-    });
+    };
 
-    // Add input data to the dataset
-    if (!(skill in skillMapping)) {
-      skillMapping[skill] = skillIndex++;
-    }
-    if (!(interest in interestMapping)) {
-      interestMapping[interest] = interestIndex++;
-    }
-    const inputData = [
-      skillMapping[skill],
-      interestMapping[interest],
-      participation,
-    ];
-    transformedData.push(inputData);
+    fetchProjectData();
+  }, [owner, repo]);
 
-    // Perform K-Means clustering
-    kmeans.clusterize(transformedData, { k: 5 }, (err, result) => {
-      if (err) {
-        console.error("Error during clustering:", err);
-        return res.status(500).json({ message: "Clustering failed" });
-      }
-
-      const clusters = result.map(cluster => cluster.cluster);
-      const centroids = result.map(cluster => cluster.centroid);
-
-      // Find the closest cluster to the input data
-      let closestClusterIndex = -1;
-      let minDistance = Infinity;
-      centroids.forEach((centroid, index) => {
-        const distance = Math.sqrt(
-          centroid.reduce((sum, value, i) => sum + (value - inputData[i]) ** 2, 0)
-        );
-        if (distance < minDistance) {
-          minDistance = distance;
-          closestClusterIndex = index;
-        }
-      });
-
-      // Get students from the closest cluster
-      const similarStudents = clusters[closestClusterIndex].map(index => ({
-        Name: combinedData[index] ? combinedData[index].name : "Unknown",
-        SimilarityScore: Math.sqrt(
-          transformedData[index].reduce(
-            (sum, value, i) => sum + (value - inputData[i]) ** 2,
-            0
-          )
-        ),
-      }));
-
-      // Sort by similarity score
-      similarStudents.sort((a, b) => a.SimilarityScore - b.SimilarityScore);
-
-      // Return the top 10 similar students
-      res.status(200).json(similarStudents.slice(0, 10));
-    });
-  } catch (err) {
-    console.error("Error processing request:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-// Login endpoint
-app.post('/api/login', async (req, res) => {
-  const { username, password, role } = req.body;
-  try {
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Invalid password' });
-    }
-
-    if (user.role !== role) {
-      return res.status(403).json({ message: 'Role mismatch' });
-    }
-
-    res.status(200).json({ message: 'Login successful', user });
-  } catch (err) {
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-app.get('/api/hackathons/upcoming', async (req, res) => {
-  try {
-    const upcomingHackathons = await Hackathon.find({ status: 'Open' });
-    res.json(upcomingHackathons);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Get past hackathons
-app.get('/api/hackathons/past', async (req, res) => {
-  try {
-    const pastHackathons = await Hackathon.find({ status: { $ne: 'Open' } });
-    res.json(pastHackathons);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Endpoint to save feedback
-app.post('/api/teams/feedback', async (req, res) => {
-  try {
-    const feedback = new Feedback(req.body);
-    await feedback.save();
-    res.status(200).send('Feedback submitted successfully');
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Error saving feedback');
-  }
-});
-app.post('/api/teams', async (req, res) => {
-  const { teamName, teamMembers, userId, hackathonId } = req.body;
-
-  // Check if all required data is provided
-  if (!teamName || !teamMembers || !userId || !hackathonId) {
-    return res.status(400).json({ message: 'Missing required fields: teamName, teamMembers, userId, hackathonId' });
+  if (!projectData) {
+    return <div>Loading...</div>;
   }
 
-  try {
-    // Create new team with userId and hackathonId
-    const newTeam = new Team({
-      teamName,
-      teamMembers,
-      userId, // Include the userId of the person registering the team
-      hackathonId // Store the hackathonId to link the team with a specific event
-    });
+  return (
+    <div>
+      <h2>Project Dashboard</h2>
 
-    // Save the new team to the database
-    await newTeam.save();
+      {/* Repository Details */}
+      <div>
+        <h3>Repository Details</h3>
+        <p><strong>Name:</strong> {projectData.repo.name}</p>
+        <p><strong>Stars:</strong> {projectData.repo.stargazers_count}</p>
+        <p><strong>Forks:</strong> {projectData.repo.forks_count}</p>
+        <p><strong>Watchers:</strong> {projectData.repo.watchers_count}</p>
+      </div>
 
-    // Respond with success message
-    res.status(201).json({
-      message: 'Team created successfully',
-      team: newTeam
-    });
-  } catch (error) {
-    // Handle any errors that occur during team creation
-    res.status(400).json({
-      message: 'Error creating team',
-      error: error.message
-    });
-  }
-});
-app.get('/api/teams/:hackathonTitle', async (req, res) => {
-  try {
-    const hackathonTitle = req.params.hackathonTitle;
-    // Find teams by hackathonTitle
-    const teams = await Team.find({ hackathonId: hackathonTitle });
-    res.json(teams);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Error fetching teams' });
-  }
-});
+      {/* Commits */}
+      <div>
+        <h3>Commit History</h3>
+        <ul>
+          {projectData.commits.map((commit) => (
+            <li key={commit.sha}>
+              <p><strong>Message:</strong> {commit.commit.message}</p>
+              <p><strong>Author:</strong> {commit.commit.author.name}</p>
+              <p><strong>Date:</strong> {new Date(commit.commit.author.date).toLocaleString()}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
 
-app.patch("/api/teams/:teamId/schedule", async (req, res) => {
-  const { teamId } = req.params;
-  const { scheduleTime } = req.body;
+      {/* Branches */}
+      <div>
+        <h3>Branches</h3>
+        <ul>
+          {projectData.branches.map((branch) => (
+            <li key={branch.name}>
+              <p><strong>Branch Name:</strong> {branch.name}</p>
+              <p><strong>Commit SHA:</strong> {branch.commit.sha}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
 
-  try {
-    const team = await Team.findByIdAndUpdate(
-      teamId,
-      { scheduleTime },
-      { new: true } // Return updated document
-    );
+      {/* Pull Requests */}
+      <div>
+        <h3>Pull Requests</h3>
+        <ul>
+          {projectData.pulls.map((pull) => (
+            <li key={pull.id}>
+              <p><strong>Title:</strong> {pull.title}</p>
+              <p><strong>State:</strong> {pull.state}</p>
+              <p><strong>Created:</strong> {new Date(pull.created_at).toLocaleString()}</p>
+              <p><strong>Assignees:</strong> {pull.assignees.map(assignee => assignee.login).join(', ')}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
 
-    if (!team) return res.status(404).send("Team not found");
-    res.send(team);
-  } catch (err) {
-    res.status(500).send("Error updating schedule");
-  }
-});
-app.post('/api/hackathons', async (req, res) => {
-  const {
-    title,
-    date,
-    participants,
-    prize,
-    difficulty,
-    skills,
-    status,
-    winners
-  } = req.body;
+      {/* Issues */}
+      <div>
+        <h3>Issues</h3>
+        <ul>
+          {projectData.issues.map((issue) => (
+            <li key={issue.id}>
+              <p><strong>Title:</strong> {issue.title}</p>
+              <p><strong>State:</strong> {issue.state}</p>
+              <p><strong>Created:</strong> {new Date(issue.created_at).toLocaleString()}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
 
-  try {
-    const newHackathon = new Hackathon({
-      title,
-      date,
-      participants,
-      prize,
-      difficulty,
-      skills: skills.split(','), // Convert skills into an array of strings
-      status,
-      winners: winners.split(','), // Convert winners into an array of strings
-    });
+      {/* Releases (Version Control) */}
+      <div>
+        <h3>Releases / Version History</h3>
+        <ul>
+          {projectData.releases.map((release) => (
+            <li key={release.id}>
+              <p><strong>Version:</strong> {release.tag_name}</p>
+              <p><strong>Release Notes:</strong> {release.body}</p>
+              <p><strong>Published at:</strong> {new Date(release.published_at).toLocaleString()}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+};
 
-    await newHackathon.save();
-    res.status(201).json({ message: 'Event created successfully', data: newHackathon });
-  } catch (error) {
-    res.status(500).json({ message: 'Error creating event', error });
-  }
-});
-
-app.get('/api/hackathons', async (req, res) => {
-  try {
-    const hackathons = await Hackathon.find();
-    res.json(hackathons);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching hackathons', error });
-  }
-});
-app.get('/api/event/:hackname', async (req, res) => {
-  try {
-    const { hackname } = req.params;
-    console.log(hackname);
-    const event = await Hackathon.findOne({ title: hackname });
-    if (!event) {
-      return res.status(404).json({ message: 'Event not found' });
-    }
-    res.status(200).json(event);
-  } catch (err) {
-    res.status(500).json({ message: 'Server Error', error: err.message });
-  }
-});
-
-app.get('/api/leaderboard/:hackathonTitle', async (req, res) => {
-  try {
-    const hackathonTitle = req.params.hackathonTitle;
-    console.log(`Received request for leaderboard of hackathon: ${hackathonTitle}`);
-
-    // Fetch teams for the specific hackathon
-    const teams = await Team.find({ hackathonId: hackathonTitle });
-    console.log(`Fetched teams for hackathon "${hackathonTitle}":`, teams);
-
-    // Fetch feedback for the specific hackathon
-    const teamNames = teams.map(team => team.teamName)
-    const feedbacks = await Feedback.find({ teamName: { $in: teamNames } });
-    console.log(`Fetched feedbacks for hackathon "${hackathonTitle}":`, feedbacks);
-
-    // Create a map of team feedback
-    const feedbackMap = new Map(
-      feedbacks.map(feedback => [
-        feedback.teamName.toLowerCase(),
-        {
-          innovation: feedback.innovation,
-          creativity: feedback.creativity,
-          ux: feedback.ux,
-          businessPotential: feedback.businessPotential,
-          feedback: feedback.feedback,
-          members: feedback.members
-        }
-      ])
-    );
-    console.log(`Constructed feedback map:`, feedbackMap);
-
-    // Combine team and feedback data
-    const leaderboardData = teams.map(team => {
-      const feedback = feedbackMap.get(team.teamName.toLowerCase()) || {};
-      const totalScore =
-        (feedback.innovation || 0) +
-        (feedback.creativity || 0) +
-        (feedback.ux || 0) +
-        (feedback.businessPotential || 0);
-
-      console.log(`Calculating total score for team "${team.teamName}":`, {
-        innovation: feedback.innovation || 0,
-        creativity: feedback.creativity || 0,
-        ux: feedback.ux || 0,
-        businessPotential: feedback.businessPotential || 0,
-        totalScore
-      });
-
-      return {
-        teamName: team.teamName,
-        teamMembers: team.teamMembers,
-        innovation: feedback.innovation || 0,
-        creativity: feedback.creativity || 0,
-        ux: feedback.ux || 0,
-        businessPotential: feedback.businessPotential || 0,
-        feedback: feedback.feedback || "No feedback",
-        totalScore: totalScore,
-        averageScore: totalScore / 4
-      };
-    });
-
-    // Sort and rank teams
-    const rankedLeaderboard = leaderboardData
-      .sort((a, b) => b.totalScore - a.totalScore)
-      .map((team, index) => ({
-        ...team,
-        rank: index + 1
-      }));
-    console.log(`Ranked leaderboard data:`, rankedLeaderboard);
-
-    res.json(rankedLeaderboard);
-  } catch (error) {
-    console.error('Leaderboard error:', error);
-    res.status(500).json({ message: 'Error generating leaderboard' });
-  }
-});
-const GITHUB_TOKEN = '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'; // Optional for private repos
-
-app.get('/api/commits', async (req, res) => {
-  const { owner, repo } = req.query; // Extract owner and repo from the query params
-
-  // Check if both owner and repo are provided
-  if (!owner || !repo) {
-    return res.status(400).send('Owner and repo parameters are required');
-  }
-
-  try {
-    const response = await axios.get(`https://api.github.com/repos/${owner}/${repo}/commits`);
-    res.json(response.data); // Send back the commit data
-  } catch (error) {
-    console.error('Error fetching commits:', error.message);
-    res.status(500).send('Error fetching commit data');
-  }
-});
-
-// Start the server
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
-
+export default ProjectDashboard;
