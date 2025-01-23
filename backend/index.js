@@ -5,10 +5,12 @@ const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
 
 
+
 const xlsx = require('xlsx'); // For reading Excel files if needed
 const User = require('./models/User'); // MongoDB User model
 const Hackathon = require('./models/Hackathons');
 const bodyParser = require('body-parser');
+const Feedback = require('./models/Teams');
 
 dotenv.config();
 const app = express();
@@ -163,7 +165,6 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-
 app.get('/api/hackathons/upcoming', async (req, res) => {
   try {
     const upcomingHackathons = await Hackathon.find({ status: 'Open' });
@@ -183,7 +184,20 @@ app.get('/api/hackathons/past', async (req, res) => {
   }
 });
 
+// Endpoint to save feedback
+app.post('/api/teams/feedback', async (req, res) => {
+  try {
+    const feedback = new Feedback(req.body);
+    await feedback.save();
+    res.status(200).send('Feedback submitted successfully');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error saving feedback');
+  }
+});
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
