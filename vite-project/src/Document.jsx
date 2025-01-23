@@ -44,7 +44,6 @@ const DocumentEditor = () => {
     ],
     content: '<p>Start typing...</p>',
     onUpdate: ({ editor }) => {
-      // Emit changes to socket
       socket?.emit('edit-document', 'doc1', { content: editor.getHTML() });
     },
   });
@@ -63,24 +62,21 @@ const DocumentEditor = () => {
   }, [editor]);
 
   const tools = [
-    { name: 'Canva', url: 'https://www.canva.com', color: 'bg-[#00C4CC]', description: 'Design beautiful graphics, presentations & social media content' },
-    { name: 'Figma', url: 'https://www.figma.com', color: 'bg-[#A259FF]', description: 'Collaborative interface design tool for teams' },
-    { name: 'Jamboard', url: 'https://jamboard.google.com', color: 'bg-[#F37C20]', description: 'Digital whiteboard for real-time collaboration' },
-    { name: 'Miro', url: 'https://miro.com', color: 'bg-[#FFD02F]', description: 'Online whiteboard platform for visual collaboration' },
-    { name: 'Notion', url: 'https://notion.so', color: 'bg-black', description: 'All-in-one workspace for notes, docs & projects' },
+    { name: 'Canva', url: 'https://www.canva.com', color: 'bg-[#1A5F7A]', description: 'Design graphics & presentations' },
+    { name: 'Figma', url: 'https://www.figma.com', color: 'bg-[#2C3E50]', description: 'Interface design tool' },
+    { name: 'Notion', url: 'https://notion.so', color: 'bg-[#8E1D3A]', description: 'Workspace for notes & projects' },
+    { name: 'Miro', url: 'https://miro.com', color: 'bg-[#003459]', description: 'Collaborative whiteboard' },
+    { name: 'Jamboard', url: 'https://jamboard.google.com', color: 'bg-[#4A154B]', description: 'Digital whiteboard' },
   ];
 
   if (!editor) {
     return <div>Loading editor...</div>;
   }
-  const handleRedirectToVideo = () => {
-    navigate('/video');
-  };
 
   return (
-    <div className="flex min-h-screen">
-      <div className="w-80 bg-gray-100 p-6 space-y-8">
-        <h2 className="text-xl font-bold text-gray-800 mb-6">Creative Tools</h2>
+    <div className="flex min-h-screen bg-[#F0F4F8]">
+      <div className="w-80 bg-[#1A2C3A] p-6 space-y-8 text-white">
+        <h2 className="text-xl font-bold mb-6">Creative Tools</h2>
         {tools.map((tool) => (
           <div key={tool.name} className="space-y-2">
             <a
@@ -92,25 +88,25 @@ const DocumentEditor = () => {
               {tool.name}
               <ExternalLink size={16} className="opacity-0 group-hover:opacity-100 transition-opacity" />
             </a>
-            <p className="text-sm text-gray-600 px-2">{tool.description}</p>
+            <p className="text-sm text-gray-300 px-2">{tool.description}</p>
           </div>
         ))}
       </div>
 
-      <div className="flex-1 bg-gradient-to-br from-[#ff5a05] via-[#6c1f93] to-[#360498] p-8">
+      <div className="flex-1 bg-[#F0F4F8] p-8">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg shadow-xl p-6">
+          <div className="bg-white rounded-lg shadow-xl p-6 border border-[#1A2C3A]">
             <div className="flex items-center justify-between mb-6">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-[#ff5a05] to-[#360498] text-transparent bg-clip-text">
+              <h1 className="text-3xl font-bold text-[#1A2C3A]">
                 Real-Time Document Collaboration
               </h1>
               <div className="flex items-center gap-2">
                 <div
                   className={`w-3 h-3 rounded-full ${
-                    connected ? 'bg-green-500' : 'bg-red-500'
+                    connected ? 'bg-green-600' : 'bg-[#8E1D3A]'
                   }`}
                 />
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-700">
                   {connected ? 'Connected' : 'Disconnected'}
                 </span>
               </div>
@@ -120,12 +116,11 @@ const DocumentEditor = () => {
               <select
                 onChange={(e) => {
                   setFontSize(e.target.value);
-                  // Apply font size to editor content
                   const element = editor.view.dom;
                   element.style.fontSize = e.target.value;
                 }}
                 value={fontSize}
-                className="p-2 rounded border"
+                className="p-2 rounded border border-[#1A2C3A] text-[#1A2C3A]"
               >
                 <option value="14px">14px</option>
                 <option value="16px">16px</option>
@@ -134,30 +129,28 @@ const DocumentEditor = () => {
               </select>
 
               <div className="flex flex-wrap gap-2">
+                {/* Formatting buttons with navy blue and red color scheme */}
                 <div className="flex gap-1">
                   <button
                     onClick={() => editor.chain().focus().toggleBold().run()}
-                    disabled={!editor.can().chain().focus().toggleBold().run()}
                     className={`p-2 rounded hover:bg-gray-200 ${
-                      editor.isActive('bold') ? 'bg-gray-200' : ''
+                      editor.isActive('bold') ? 'bg-[#1A2C3A] text-white' : ''
                     }`}
                   >
                     <BoldIcon size={18} />
                   </button>
                   <button
                     onClick={() => editor.chain().focus().toggleItalic().run()}
-                    disabled={!editor.can().chain().focus().toggleItalic().run()}
                     className={`p-2 rounded hover:bg-gray-200 ${
-                      editor.isActive('italic') ? 'bg-gray-200' : ''
+                      editor.isActive('italic') ? 'bg-[#1A2C3A] text-white' : ''
                     }`}
                   >
                     <ItalicIcon size={18} />
                   </button>
                   <button
                     onClick={() => editor.chain().focus().toggleUnderline().run()}
-                    disabled={!editor.can().chain().focus().toggleUnderline().run()}
                     className={`p-2 rounded hover:bg-gray-200 ${
-                      editor.isActive('underline') ? 'bg-gray-200' : ''
+                      editor.isActive('underline') ? 'bg-[#1A2C3A] text-white' : ''
                     }`}
                   >
                     <UnderlineIcon size={18} />
@@ -170,7 +163,7 @@ const DocumentEditor = () => {
                   <button
                     onClick={() => editor.chain().focus().toggleBulletList().run()}
                     className={`p-2 rounded hover:bg-gray-200 ${
-                      editor.isActive('bulletList') ? 'bg-gray-200' : ''
+                      editor.isActive('bulletList') ? 'bg-[#1A2C3A] text-white' : ''
                     }`}
                   >
                     <ListIcon size={18} />
@@ -183,7 +176,7 @@ const DocumentEditor = () => {
                   <button
                     onClick={() => editor.chain().focus().setTextAlign('left').run()}
                     className={`p-2 rounded hover:bg-gray-200 ${
-                      editor.isActive({ textAlign: 'left' }) ? 'bg-gray-200' : ''
+                      editor.isActive({ textAlign: 'left' }) ? 'bg-[#1A2C3A] text-white' : ''
                     }`}
                   >
                     <AlignLeft size={18} />
@@ -191,7 +184,7 @@ const DocumentEditor = () => {
                   <button
                     onClick={() => editor.chain().focus().setTextAlign('center').run()}
                     className={`p-2 rounded hover:bg-gray-200 ${
-                      editor.isActive({ textAlign: 'center' }) ? 'bg-gray-200' : ''
+                      editor.isActive({ textAlign: 'center' }) ? 'bg-[#1A2C3A] text-white' : ''
                     }`}
                   >
                     <AlignCenter size={18} />
@@ -199,7 +192,7 @@ const DocumentEditor = () => {
                   <button
                     onClick={() => editor.chain().focus().setTextAlign('right').run()}
                     className={`p-2 rounded hover:bg-gray-200 ${
-                      editor.isActive({ textAlign: 'right' }) ? 'bg-gray-200' : ''
+                      editor.isActive({ textAlign: 'right' }) ? 'bg-[#1A2C3A] text-white' : ''
                     }`}
                   >
                     <AlignRight size={18} />
@@ -208,22 +201,21 @@ const DocumentEditor = () => {
               </div>
             </div>
 
-            <div className="w-full p-4 border border-gray-200 rounded-lg focus-within:ring-2 focus-within:ring-[#6c1f93] focus-within:border-transparent outline-none transition-all duration-200 shadow-inner bg-gray-50 hover:bg-white min-h-[300px]">
+            <div className="w-full p-4 border border-[#1A2C3A] rounded-lg focus-within:ring-2 focus-within:ring-[#8E1D3A] focus-within:border-transparent outline-none transition-all duration-200 shadow-inner bg-gray-50 hover:bg-white min-h-[300px]">
               <EditorContent editor={editor} />
             </div>
 
-            <div className="mt-4 text-sm text-gray-500 flex justify-between items-center">
+            <div className="mt-4 text-sm text-gray-700 flex justify-between items-center">
               <span>{editor.storage.characterCount?.characters() || 0} characters</span>
-              <span className="text-[#ff5a05]">Changes save automatically</span>
+              <span className="text-[#1A2C3A]">Changes save automatically</span>
             </div>
-            
           </div>
           <Link
-        to="/video"
-        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 inline-block text-center"
-      >
-       Video Chat 
-      </Link>
+            to="/video"
+            className="mt-4 bg-[#8E1D3A] text-white px-4 py-2 rounded hover:bg-[#6C1524] inline-block text-center"
+          >
+            Video Chat 
+          </Link>
         </div>
       </div>
       <ChatRoom/>

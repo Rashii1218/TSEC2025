@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Calendar, Trophy, Users, MessageCircle, Code, Award, ArrowRight, ClipboardCheck, Box } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Calendar, Trophy, Users, MessageCircle, Code, Award, ClipboardCheck, Box } from 'lucide-react';
 import { motion } from "framer-motion";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Navbar from './Navbar';
 
 const EventsPage = () => {
@@ -9,8 +9,29 @@ const EventsPage = () => {
   const [registerFormVisible, setRegisterFormVisible] = useState(false);
   const [teamName, setTeamName] = useState('');
   const [teamMembers, setTeamMembers] = useState([{ name: '', email: '' }]);
+  const [hackathonData, setHackathonData] = useState({ title: '', participants: 0 });
 
   const navigate = useNavigate();
+  const { title } = useParams();
+
+  useEffect(() => {
+    const fetchHackathonData = async () => {
+      try {
+        const hackathonTitle = new URLSearchParams(location.search).get('hackname'); 
+        const response = await fetch(`http://localhost:3000/api/event/${hackathonTitle}`);
+        if (response.ok) {
+          const data = await response.json();
+          setHackathonData(data);
+        } else {
+          console.error('Failed to fetch hackathon data');
+        }
+      } catch (error) {
+        console.error('Error fetching hackathon data:', error);
+      }
+    };
+
+    fetchHackathonData();
+  }, [title]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -28,50 +49,51 @@ const EventsPage = () => {
   const features = [
     {
       title: "Team Formation",
-      description: "Find your perfect match and build your dream team",
+      description: "Find and build your ideal team",
       icon: Users,
-      gradient: "from-orange-400 to-purple-500",
+      gradient: "from-indigo-600 to-blue-500",
       onClick: () => setIframeVisible(true)
     },
     {
-      title: "AI Assistant",
-      description: "Get help with coding and project management",
+      title: "Mentorship",
+      description: "Get expert coding and project guidance",
       icon: MessageCircle,
-      gradient: "from-purple-400 to-pink-500"
+      gradient: "from-teal-600 to-emerald-500",
+      onClick: () => navigate('/mentor')
     },
     {
-      title: "Project Showcases",
-      description: "Participate in coding challenges and improve your skills",
+      title: "Project Challenges",
+      description: "Engage in innovative coding challenges",
       icon: Code,
-      gradient: "from-green-400 to-blue-500"
+      gradient: "from-cyan-600 to-sky-500"
     },
     {
-      title: "Register",
-      description: "Register your team to participate in the event",
+      title: "Team Registration",
+      description: "Register your team for the hackathon",
       icon: ClipboardCheck,
-      gradient: "from-red-400 to-yellow-500",
+      gradient: "from-rose-600 to-pink-500",
       onClick: () => setRegisterFormVisible(true)
     },
     {
-      title: "Collaboration Workspace",
-      description: "Collaborate with your team in a shared workspace",
+      title: "Team Workspace",
+      description: "Collaborate in a shared digital environment",
       icon: Box,
-      gradient: "from-blue-500 to-green-500",
+      gradient: "from-violet-600 to-purple-500",
       onClick: () => navigate('/document')
     }
   ];
 
   const timelinePhases = [
-    { phase: "Phase 1", date: "2023-11-01" },
-    { phase: "Phase 2", date: "2023-12-01" },
-    { phase: "Phase 3", date: "2024-01-01" },
+    { phase: "Ideation", date: "2024-02-01", description: "Team formation and initial concept" },
+    { phase: "Development", date: "2024-03-01", description: "Build and refine project" },
+    { phase: "Presentation", date: "2024-04-01", description: "Final submissions and demos" }
   ];
 
   const leaderboard = [
-    { name: "Team A", points: 100 },
-    { name: "Team B", points: 85 },
-    { name: "Team C", points: 70 },
-    { name: "Team D", points: 55 },
+    { name: "Quantum Innovators", points: 120, rank: 1 },
+    { name: "Code Wizards", points: 105, rank: 2 },
+    { name: "Tech Titans", points: 90, rank: 3 },
+    { name: "Digital Dreamers", points: 75, rank: 4 }
   ];
 
   const isPhaseElapsed = (date) => {
@@ -129,194 +151,205 @@ const EventsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-purple-400 to-black text-white">
-      <Navbar/>
-      {!iframeVisible && !registerFormVisible && (
-        <div className="max-w-7xl mx-auto px-4 py-16">
-          <h1 className="text-5xl font-bold text-center mb-4 bg-gradient-to-r from-orange-600 via-purple-800 to-pink-600 text-transparent bg-clip-text">
-            HACKATHON 1
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-gray-100">
+      <Navbar />
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-rose-500 to-indigo-500">
+            {hackathonData.title}
           </h1>
-          <div className="mb-16">
-    <video
-    autoPlay
-      controls
-      className="w-full h-auto rounded-lg shadow-lg"
-      poster="your-thumbnail.jpg" // Optional: Add a thumbnail if the video isn't playing
-    >
-      <source src="/hack_vid.mp4" type="video/mp4" />
-   
-    
-    </video>
-  </div>
-          <p className="text-lg text-center mb-16">
-            Join us for an exciting hackathon filled with challenges, workshops, and networking opportunities. Showcase your skills, build innovative solutions, and compete for amazing prizes!
+          <p className="text-xl text-gray-300">
+            Total Participants: {hackathonData.participants}
           </p>
+        </div>
 
-          {/* Leaderboard Section */}
-          <div className="mb-16">
-            <h2 className="text-3xl font-bold text-white flex items-center mb-4">
-              <Award className="mr-2 text-yellow-500" /> Leaderboard
-            </h2>
+        <div className="mb-16 rounded-2xl overflow-hidden shadow-2xl">
+          
+        </div>
+
+        {/* Features Grid */}
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-16"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {features.map((feature, index) => (
             <motion.div
-              className="bg-gradient-to-br from-black to-purple-950 rounded-xl p-6 shadow-lg hover:scale-105 transition-transform duration-300 ease-in-out"
+              key={index}
+              className={`bg-gradient-to-br ${feature.gradient} rounded-xl p-6 shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-2xl`}
               variants={cardVariants}
-              initial="hidden"
-              animate="visible"
+              onClick={feature.onClick || null}
             >
-              <div className="space-y-4">
-                {leaderboard.map((team, index) => (
-                  <div
-                    key={index}
-                    className="flex justify-between items-center text-white hover:bg-purple-400 p-2 rounded-md transition-all duration-300 ease-in-out"
-                  >
-                    <div className="text-lg font-semibold">{team.name}</div>
-                    <div className="text-lg font-semibold">{team.points} pts</div>
-                  </div>
-                ))}
+              <div className="flex flex-col items-center text-center">
+                <feature.icon className="w-12 h-12 text-white mb-4 opacity-80" />
+                <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
+                <p className="text-sm text-gray-100 opacity-80">{feature.description}</p>
               </div>
             </motion.div>
+          ))}
+        </motion.div>
+
+        <div className="grid md:grid-cols-2 gap-12">
+          {/* Leaderboard */}
+          <div>
+            <h2 className="text-3xl font-bold text-white flex items-center mb-6">
+              <Trophy className="mr-3 text-amber-400" /> Leaderboard
+            </h2>
+            <div className="bg-slate-800 rounded-2xl overflow-hidden shadow-xl">
+              {leaderboard.map((team) => (
+                <div 
+                  key={team.name} 
+                  className="px-6 py-4 border-b border-slate-700 last:border-b-0 hover:bg-slate-700 transition-colors"
+                >
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <span className="font-semibold text-gray-200 mr-3">#{team.rank}</span>
+                      <span className="text-lg font-bold text-white">{team.name}</span>
+                    </div>
+                    <span className="text-emerald-400 font-bold">{team.points} pts</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Features Section */}
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            {features.map((feature, index) => (
-              <motion.div
-                key={index}
-                className={`bg-gradient-to-br ${feature.gradient} rounded-xl p-6 shadow-lg hover:scale-105 transition-all duration-300 ease-in-out cursor-pointer`}
-                variants={cardVariants}
-                onClick={feature.onClick || null}
-              >
-                <div className="flex items-center mb-4">
-                  <feature.icon className="w-12 h-12 text-white mr-4" />
-                  <h3 className="text-2xl font-bold text-white">{feature.title}</h3>
-                </div>
-                <p className="text-white">{feature.description}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          {/* Timeline Section */}
-          <div className="mb-16">
-            <h2 className="text-3xl font-bold text-white flex items-center mb-4">
-              <Calendar className="mr-2 text-orange-400" /> Timeline
+          {/* Timeline */}
+          <div>
+            <h2 className="text-3xl font-bold text-white flex items-center mb-6">
+              <Calendar className="mr-3 text-cyan-400" /> Event Timeline
             </h2>
-            <motion.div
-              className="bg-gradient-to-br from-black to-purple-950 rounded-xl p-8 border border-purple-800 shadow-lg"
-              variants={cardVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              <div className="relative">
-                {timelinePhases.map((item) => {
-                  const elapsed = isPhaseElapsed(item.date);
-                  return (
-                    <div key={item.phase} className="relative pl-8 pb-8 last:pb-0">
-                      <div className={`absolute left-0 top-0 h-full w-px ${elapsed ? "bg-gray-500" : "bg-gradient-to-b from-orange-400 to-purple-500"}`} />
-                      <div className={`absolute left-[-4px] top-2 w-2 h-2 rounded-full ${elapsed ? "bg-gray-500" : "bg-orange-400"}`} />
-                      <div className="group">
-                        <h3 className={`text-xl font-bold ${elapsed ? "text-gray-500" : "text-white"} mb-1 group-hover:text-orange-400 transition-colors`}>
-                          {item.phase}
+            <div className="bg-slate-800 rounded-2xl overflow-hidden shadow-xl">
+              {timelinePhases.map((phase) => {
+                const elapsed = isPhaseElapsed(phase.date);
+                return (
+                  <div 
+                    key={phase.phase} 
+                    className="px-6 py-5 border-b border-slate-700 last:border-b-0 hover:bg-slate-700 transition-colors"
+                  >
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h3 className={`text-lg font-bold ${elapsed ? 'text-gray-500' : 'text-white'}`}>
+                          {phase.phase}
                         </h3>
-                        <p className="text-purple-300">{item.date}</p>
+                        <p className="text-sm text-gray-400">{phase.description}</p>
                       </div>
+                      <span className={`text-sm ${elapsed ? 'text-gray-500' : 'text-cyan-400'}`}>
+                        {phase.date}
+                      </span>
                     </div>
-                  );
-                })}
-              </div>
-            </motion.div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Registration Form */}
+      {/* Modals/Forms would be added here (Team Registration, etc.) */}
       {registerFormVisible && (
-        <div className="w-screen h-screen flex flex-col items-center justify-center bg-black">
-          <form
-            onSubmit={handleSubmit}
-            className="bg-gradient-to-br from-purple-800 to-black rounded-lg p-8 space-y-4 shadow-lg text-white w-full max-w-lg"
-          >
-            <h2 className="text-3xl font-bold text-center mb-4">Register Your Team</h2>
-            <input
-              type="text"
-              value={teamName}
-              onChange={(e) => setTeamName(e.target.value)}
-              placeholder="Team Name"
-              className="w-full px-4 py-3 rounded-md bg-black border border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none"
-            />
-            {teamMembers.map((member, index) => (
-              <div key={index} className="space-y-3">
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-slate-800 rounded-2xl p-8 w-full max-w-lg">
+      <h2 className="text-2xl font-bold text-white mb-6">Team Registration</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">Team Name</label>
+          <input
+            type="text"
+            value={teamName}
+            onChange={(e) => setTeamName(e.target.value)}
+            className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:ring-2 focus:ring-cyan-500"
+            placeholder="Enter your team name"
+            required
+          />
+        </div>
+
+        {teamMembers.map((member, index) => (
+          <div key={index} className="space-y-2">
+            <div className="flex space-x-4">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-300 mb-1">Member Name</label>
                 <input
                   type="text"
                   value={member.name}
                   onChange={(e) => handleMemberChange(index, 'name', e.target.value)}
-                  placeholder={`Member ${index + 1} Name`}
-                  className="w-full px-4 py-3 rounded-md bg-black border border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                  className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:ring-2 focus:ring-cyan-500"
+                  placeholder="Enter member name"
+                  required
                 />
+              </div>
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-300 mb-1">Member Email</label>
                 <input
                   type="email"
                   value={member.email}
                   onChange={(e) => handleMemberChange(index, 'email', e.target.value)}
-                  placeholder={`Member ${index + 1} Email`}
-                  className="w-full px-4 py-3 rounded-md bg-black border border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                  className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:ring-2 focus:ring-cyan-500"
+                  placeholder="Enter member email"
+                  required
                 />
-                {index > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveMember(index)}
-                    className="w-full px-4 py-3 bg-red-500 text-white rounded-md hover:bg-red-600 transition-all"
-                  >
-                    Remove Member
-                  </button>
-                )}
               </div>
-            ))}
-            <div className="flex space-x-4">
-              <button
-                type="button"
-                onClick={handleAddMember}
-                className="flex-1 px-4 py-3 bg-green-500 text-white rounded-md hover:bg-green-600 transition-all"
-              >
-                + Add Member
-              </button>
-              <button
-                type="submit"
-                className="flex-1 px-4 py-3 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition-all"
-              >
-                Register Team
-              </button>
+              {index > 0 && (
+                <button
+                  type="button"
+                  onClick={() => handleRemoveMember(index)}
+                  className="self-end bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Remove
+                </button>
+              )}
             </div>
-            <button
-              type="button"
-              onClick={() => setRegisterFormVisible(false)}
-              className="text-white underline mt-4 hover:text-gray-400"
-            >
-              Cancel
-            </button>
-          </form>
-        </div>
-      )}
+          </div>
+        ))}
 
-      {/* Iframe Section */}
-      {iframeVisible && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70">
-          <iframe
-            src="http://localhost:8501"
-            title="Team Formation"
-            className="w-full h-full border-0"
-          />
+        <div className="flex justify-between items-center">
           <button
-            onClick={() => setIframeVisible(false)}
-            className="absolute top-4 right-4 text-white text-3xl bg-red-500 p-2 rounded-full"
+            type="button"
+            onClick={handleAddMember}
+            className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
           >
-            &times;
+            Add Member
           </button>
         </div>
-      )}
+
+        <div className="flex space-x-4 mt-6">
+          <button
+            type="submit"
+            className="flex-1 bg-cyan-600 text-white py-3 rounded-lg hover:bg-cyan-700 transition-colors"
+          >
+            Register Team
+          </button>
+          <button
+            type="button"
+            onClick={() => setRegisterFormVisible(false)}
+            className="flex-1 bg-slate-700 text-white py-3 rounded-lg hover:bg-slate-600 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
+{/* Team Formation Iframe Modal */}
+{iframeVisible && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-4xl relative">
+      <button 
+        onClick={() => setIframeVisible(false)}
+        className="absolute top-4 right-4 text-white bg-red-600 hover:bg-red-700 p-2 rounded-full transition-colors"
+      >
+        Close
+      </button>
+      <iframe 
+        src="http://localhost:8501" 
+        className="w-full h-[600px] rounded-lg"
+        title="Team Formation"
+      />
+    </div>
+  </div>
+)}
     </div>
   );
 };

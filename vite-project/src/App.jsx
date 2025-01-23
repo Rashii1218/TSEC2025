@@ -80,8 +80,12 @@ import TeamListPage from './TeamListPage';
 import Profile from './UserProfile/Profile';
 import TeamForm from "./team/Register";
 import StudentProfile from "./profile/Profile";
-import LiveForum from "./Mentor";
+
 import TeamDetails from "./TimeSchedule";
+import ODashboard from "./organizer/ODashboard";
+import Leaderboard from "./LeaderBoard";
+import CommitHistory from "./Version";
+
 
 const App = () => {
   return (
@@ -105,6 +109,10 @@ const App = () => {
         <Route path="/mentor" element={<LiveForum />} />
         <Route path="/schedule" element={<TeamDetails />} />
         <Route path="/video" element={<Video />} />
+        <Route path="/organizer" element={<ODashboard />} />
+        <Route path="/event" element={<EventsPage />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/track" element={<CommitHistory owner="Rashii1218" repo="TsecRubix25" />} />
       </Routes>
     </Router>
   );

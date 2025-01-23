@@ -2,12 +2,12 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from sklearn.cluster import KMeans
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import MultiLabelBinarizer
 import yagmail
-import requests
 
 # Custom styling
-st.markdown("""
+st.markdown(
+    """
 <style>
     .stTitle {
         color: #FF5A05;
@@ -21,16 +21,6 @@ st.markdown("""
         border-bottom: 2px solid #6C1FC9;
         margin-bottom: 1rem;
     }
-    .stButton button {
-        background-color: #FF5A05;
-        color: white;
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 5px;
-    }
-    .stButton button:hover {
-        background-color: #6C1FC9;
-    }
     .recommendation-card {
         background-color: #f8f9fa;
         padding: 1rem;
@@ -38,21 +28,10 @@ st.markdown("""
         margin: 1rem 0;
         border-left: 4px solid #FF5A05;
     }
-    div[data-testid="stDataFrame"] {
-        background-color: #f8f9fa;
-        padding: 1rem;
-        border-radius: 10px;
-        border: 1px solid #6C1FC9;
-    }
-    .stTextInput label, .stSlider label {
-        color: #360498;
-        font-weight: 500;
-    }
-    .stTab {
-        background-color: #f8f9fa;
-    }
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 def send_email_yagmail(recipient_email, recipient_name):
     sender_email = "dcmaureenmiranda@gmail.com"  # Replace with your email
@@ -70,7 +49,6 @@ def send_email_yagmail(recipient_email, recipient_name):
         print("Email sent successfully!")
     except Exception as e:
         print(f"Failed to send email: {e}")
-
 @st.cache_data
 def load_data(file_path):
     try:
@@ -81,115 +59,116 @@ def load_data(file_path):
         return None
 
 def preprocess_data(data):
-    le_skill = LabelEncoder()
-    le_interest = LabelEncoder()
-    
-    data['skill_encoded'] = le_skill.fit_transform(data['Skills'])
-    data['interest_encoded'] = le_interest.fit_transform(data['Interests'])
-    
-    return data, le_skill, le_interest
+    mlb_skills = MultiLabelBinarizer()
+    mlb_interests = MultiLabelBinarizer()
 
-def recommend_students(data, input_data, k=5):
-    features = data[['skill_encoded', 'interest_encoded', 'Participation']].values
-    
-    kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
-    kmeans.fit(features)
-    
-    input_cluster = kmeans.predict([input_data])[0]
-    
-    data['cluster'] = kmeans.labels_
-    cluster_students = data[data['cluster'] == input_cluster].copy()
-    
-    cluster_students['similarity_score'] = cluster_students.apply(
-        lambda row: np.linalg.norm(np.array(input_data) - np.array(
-            [row['skill_encoded'], row['interest_encoded'], row['Participation']]
-        )), axis=1
+    data['Skills'] = data['Skills'].apply(lambda x: x.split(','))
+    data['Interests'] = data['Interests'].apply(lambda x: x.split(','))
+
+    skills_encoded = mlb_skills.fit_transform(data['Skills'])
+    interests_encoded = mlb_interests.fit_transform(data['Interests'])
+
+    data_encoded = pd.concat(
+        [
+            data.reset_index(drop=True),
+            pd.DataFrame(skills_encoded, columns=mlb_skills.classes_),
+            pd.DataFrame(interests_encoded, columns=mlb_interests.classes_),
+        ],
+        axis=1,
     )
+    return data_encoded, mlb_skills, mlb_interests
+
+def recommend_students(data, input_skills, input_interests, location, participation, k=5):
+    # Ensure the dataset contains the required columns
+    missing_columns = [col for col in input_skills + input_interests if col not in data.columns]
+    if missing_columns:
+        st.error(f"❌ Missing columns in the dataset: {', '.join(missing_columns)}")
+        return pd.DataFrame()
+
+    # Handle Location column
+    if 'Location' not in data.columns:
+        st.error("❌ The dataset does not contain a 'Location' column.")
+        return pd.DataFrame()
     
-    cluster_students = cluster_students.nsmallest(10, 'similarity_score')
-    return cluster_students[['Name', 'Skills', 'Interests', 'Participation', 'similarity_score']]
+    data['Location'] = data['Location'].fillna("").astype(str)  # Ensure Location is non-null
+
+    # Encode input features
+    skills_columns = [col for col in input_skills if col in data.columns]
+    interests_columns = [col for col in input_interests if col in data.columns]
+
+    # Create feature columns for clustering
+    input_features = pd.DataFrame({
+        "skills_match": data[skills_columns].sum(axis=1) if skills_columns else 0,
+        "interests_match": data[interests_columns].sum(axis=1) if interests_columns else 0,
+        "location_match": (data["Location"].str.lower() == location.lower()).astype(int),
+        "participation_diff": abs(data["Participation"] - participation),
+    })
+
+   
+
+    # Clustering using KMeans
+    kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+    input_features["cluster"] = kmeans.fit_predict(input_features)
+
+    # Find the cluster of the last user input (new data point)
+    input_cluster = kmeans.predict(input_features.iloc[[-1], :-1])[0]
+
+    # Filter data to the same cluster
+    cluster_students = data.iloc[input_features.index[input_features["cluster"] == input_cluster]].copy()
+
+    # Calculate similarity score for ranking
+    cluster_students["similarity_score"] = (
+        input_features.loc[cluster_students.index, "skills_match"] +
+        input_features.loc[cluster_students.index, "interests_match"] +
+        input_features.loc[cluster_students.index, "location_match"] -
+        input_features.loc[cluster_students.index, "participation_diff"]
+    )
+
+    # Sort recommendations by similarity score
+    recommendations = cluster_students.sort_values(by="similarity_score", ascending=False)
+    return recommendations[["Name", "Skills", "Interests", "Location", "Participation", "similarity_score"]]
+
 
 # Initialize session state
 if "recommendations" not in st.session_state:
     st.session_state.recommendations = None
-if "hardcoded_recommendations" not in st.session_state:
-    st.session_state.hardcoded_recommendations = None
-if "num_teammates" not in st.session_state:
-    st.session_state.num_teammates = 3
 
 # UI Layout
 st.title("Team Mates Recommender")
 
-tab1, tab2 = st.tabs(["🎯 Custom Search", "🎨 Personal Recommendations"])
+file_path = "compatible_dataset.xlsx"
+data = load_data(file_path)
 
-with tab1:
+if data is not None:
+    data, mlb_skills, mlb_interests = preprocess_data(data)
+
     st.markdown('<p class="section-header">Find Your Perfect Team</p>', unsafe_allow_html=True)
-    
-    file_path = "dataset.xlsx"
-    data = load_data(file_path)
-    
-    if data is not None:
-        data, le_skill, le_interest = preprocess_data(data)
 
-        col1, col2 = st.columns(2)
-        with col1:
-            skill = st.text_input("🔧 Skill Required:", placeholder="e.g., Python")
-        with col2:
-            interest = st.text_input("🎯 Interest Area:", placeholder="e.g., AI")
-        
-        participation = st.slider("📊 Participation Level:", min_value=1, max_value=10, value=5)
+    input_skills = st.multiselect("🔧 Select Required Skills:", options=mlb_skills.classes_)
+    input_interests = st.multiselect("🎯 Select Areas of Interest:", options=mlb_interests.classes_)
+    location = st.text_input("📍 Preferred Location:", placeholder="e.g., New York")
+    participation = st.slider("📊 Participation Level:", min_value=1, max_value=10, value=5)
 
-        if st.button("🔍 Find Team Mates"):
-            if skill and interest:
-                try:
-                    input_skill = le_skill.transform([skill])[0] if skill in le_skill.classes_ else -1
-                    input_interest = le_interest.transform([interest])[0] if interest in le_interest.classes_ else -1
-                    
-                    if input_skill == -1 or input_interest == -1:
-                        st.error("❌ Skill or interest not found in database. Try another.")
-                    else:
-                        input_data = [input_skill, input_interest, participation]
-                        st.session_state.recommendations = recommend_students(data, input_data)
-                except Exception as e:
-                    st.error(f"Error processing recommendations: {e}")
-            else:
-                st.error("❌ Please provide both skill and interest.")
+    if st.button("🔍 Find Team Mates"):
+        if input_skills and input_interests and location:
+            try:
+                st.session_state.recommendations = recommend_students(data, input_skills, input_interests, location, participation)
+            except Exception as e:
+                st.error(f"Error processing recommendations: {e}")
+        else:
+            st.error("❌ Please provide all inputs: skills, interests, and location.")
 
-with tab2:
-    st.markdown('<p class="section-header">Quick Match</p>', unsafe_allow_html=True)
-    
-    st.session_state.num_teammates = st.number_input(
-        "👥 Team Size:", 
-        min_value=1, 
-        max_value=10, 
-        value=st.session_state.num_teammates
-    )
-    
-    if st.button("✨ Get Personal Recommendations"):
-        try:
-            hardcoded_skill = "AI"
-            hardcoded_interest = "Data Science"
-            
-            hardcoded_skill_encoded = le_skill.transform([hardcoded_skill])[0]
-            hardcoded_interest_encoded = le_interest.transform([hardcoded_interest])[0]
-            
-            hardcoded_input = [hardcoded_skill_encoded, hardcoded_interest_encoded, participation]
-            recommendations = recommend_students(data, hardcoded_input, k=5)
-            st.session_state.hardcoded_recommendations = recommendations.head(st.session_state.num_teammates)
-        except Exception as e:
-            st.error(f"❌ Error: {e}")
-
-# Display recommendations with styling
+# Display recommendations
 if st.session_state.recommendations is not None:
-    st.markdown('<p class="section-header">🌟 Custom Matches</p>', unsafe_allow_html=True)
+    st.markdown('<p class="section-header">🌟 Recommended Matches</p>', unsafe_allow_html=True)
     for _, student in st.session_state.recommendations.iterrows():
         st.markdown(f"""
         <div class="recommendation-card">
             <h3 style="color: #360498">{student['Name']}</h3>
-            <p><strong>Skills:</strong> {student['Skills']}</p>
-            <p><strong>Interests:</strong> {student['Interests']}</p>
-            <p><strong>Match Score:</strong> {student['similarity_score']:.2f}</p>
-            <p><strong>Participation:</strong> {student['Participation']}/10</p>
+            <p><strong>Skills:</strong> {', '.join(student['Skills'])}</p>
+            <p><strong>Interests:</strong> {', '.join(student['Interests'])}</p>
+            <p><strong>Location:</strong> {student['Location']}</p>
+            
         </div>
         """, unsafe_allow_html=True)
         if st.button(f"📧 Connect with {student['Name']}", key=f"connect_{student['Name']}"):
@@ -198,10 +177,3 @@ if st.session_state.recommendations is not None:
                 st.success(f"📧 Email successfully sent to {student['Name']}!")
             except Exception as e:
                 st.error(f"❌ Failed to send email: {e}")
-
-if st.session_state.hardcoded_recommendations is not None:
-    st.markdown('<p class="section-header">✨ Personal Matches</p>', unsafe_allow_html=True)
-    styled_df = st.session_state.hardcoded_recommendations.style\
-        .format({'similarity_score': '{:.2f}'})\
-        .background_gradient(subset=['similarity_score'], cmap='YlOrRd')
-    st.dataframe(styled_df)

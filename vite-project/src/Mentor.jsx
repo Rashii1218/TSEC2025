@@ -4,9 +4,9 @@ import { Send, Users, MessageCircle, Video, Clock, Calendar, FileText } from 'lu
 
 const LiveForum = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-orange-50 to-purple-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-red-50 to-blue-100 p-6">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-orange-500 mb-10">
+        <h1 className="text-4xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-navy-600 to-red-500 mb-10">
           Mentor Support & Q&A Forum
         </h1>
         <div className="grid lg:grid-cols-3 gap-8">
@@ -35,7 +35,7 @@ const FAQs = () => {
 
   return (
     <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-      <div className="bg-gradient-to-r from-purple-600 to-orange-500 p-4">
+      <div className="bg-gradient-to-r from-navy-600 to-red-500 p-4">
         <h2 className="text-2xl font-bold text-white text-center flex items-center justify-center">
           <MessageCircle className="mr-3" /> FAQs
         </h2>
@@ -44,9 +44,9 @@ const FAQs = () => {
         {faqs.map((faq, index) => (
           <div 
             key={index} 
-            className="mb-4 pb-4 border-b border-purple-100 last:border-b-0"
+            className="mb-4 pb-4 border-b border-navy-100 last:border-b-0"
           >
-            <p className="font-semibold text-purple-700 mb-2">{faq.question}</p>
+            <p className="font-semibold text-navy-700 mb-2">{faq.question}</p>
             <p className="text-gray-600 text-sm">{faq.answer}</p>
           </div>
         ))}
@@ -58,7 +58,7 @@ const FAQs = () => {
 const PDFQuestionAnswer = () => {
   return (
     <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-      <div className="bg-gradient-to-r from-purple-600 to-orange-500 p-4">
+      <div className="bg-gradient-to-r from-navy-600 to-red-500 p-4">
         <h2 className="text-2xl font-bold text-white text-center flex items-center justify-center">
           <FileText className="mr-3" /> PDF Q&A
         </h2>
@@ -68,7 +68,7 @@ const PDFQuestionAnswer = () => {
           src="http://localhost:8502" 
           width="100%" 
           height="600px" 
-          className="border border-purple-100 rounded-xl"
+          className="border border-navy-100 rounded-xl"
         >
         </iframe>
       </div>
@@ -102,7 +102,7 @@ const ScheduledMeetings = () => {
 
   return (
     <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-      <div className="bg-gradient-to-r from-purple-600 to-orange-500 p-4">
+      <div className="bg-gradient-to-r from-navy-600 to-red-500 p-4">
         <h2 className="text-2xl font-bold text-white text-center flex items-center justify-center">
           <Calendar className="mr-3" /> Scheduled Meetings
         </h2>
@@ -111,12 +111,12 @@ const ScheduledMeetings = () => {
         {meetings.map((meeting) => (
           <div 
             key={meeting.id} 
-            className="bg-purple-50 p-4 rounded-xl flex items-center justify-between hover:bg-purple-100 transition"
+            className="bg-blue-50 p-4 rounded-xl flex items-center justify-between hover:bg-blue-100 transition"
           >
             <div>
               <div className="flex items-center mb-2">
-                <Clock className="mr-2 text-purple-600" size={20} />
-                <span className="font-semibold text-purple-700">{meeting.mentor}</span>
+                <Clock className="mr-2 text-navy-600" size={20} />
+                <span className="font-semibold text-navy-700">{meeting.mentor}</span>
               </div>
               <p className="text-gray-600 text-sm">{meeting.topic}</p>
               <p className="text-gray-500 text-xs mt-1">
@@ -125,7 +125,7 @@ const ScheduledMeetings = () => {
             </div>
             <button
               onClick={() => joinMeeting(meeting.meetLink)}
-              className="bg-gradient-to-r from-purple-600 to-orange-500 text-white px-4 py-2 rounded-xl hover:opacity-90 transition flex items-center"
+              className="bg-gradient-to-r from-navy-600 to-red-500 text-white px-4 py-2 rounded-xl hover:opacity-90 transition flex items-center"
             >
               <Video className="mr-2" /> Join
             </button>
@@ -172,7 +172,7 @@ const ChatRoom = () => {
 
   return (
     <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-      <div className="bg-gradient-to-r from-purple-600 to-orange-500 p-4">
+      <div className="bg-gradient-to-r from-navy-600 to-red-500 p-4">
         <h2 className="text-2xl font-bold text-white text-center flex items-center justify-center">
           <Users className="mr-3" /> Chat Room
         </h2>
@@ -182,27 +182,27 @@ const ChatRoom = () => {
           <form onSubmit={joinChat} className="space-y-4">
             <input
               type="text"
-              className="w-full px-4 py-3 border border-purple-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:outline-none"
+              className="w-full px-4 py-3 border border-navy-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:outline-none"
               placeholder="Enter your username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-purple-600 to-orange-500 text-white py-3 rounded-xl hover:opacity-90 transition"
+              className="w-full bg-gradient-to-r from-navy-600 to-red-500 text-white py-3 rounded-xl hover:opacity-90 transition"
             >
               Join Chat
             </button>
           </form>
         ) : (
           <div className="flex flex-col h-[600px]">
-            <div className="flex-grow overflow-y-auto border border-purple-100 rounded-xl p-4 mb-4 space-y-3">
+            <div className="flex-grow overflow-y-auto border border-navy-100 rounded-xl p-4 mb-4 space-y-3">
               {messages.map((msg, index) => (
                 <div 
                   key={index} 
-                  className="bg-purple-50 p-3 rounded-lg"
+                  className="bg-blue-50 p-3 rounded-lg"
                 >
-                  <strong className="text-purple-700 mr-2">{msg.username}:</strong>
+                  <strong className="text-navy-700 mr-2">{msg.username}:</strong>
                   <span className="text-gray-700">{msg.message}</span>
                 </div>
               ))}
@@ -210,14 +210,14 @@ const ChatRoom = () => {
             <form onSubmit={sendMessage} className="flex space-x-2">
               <input
                 type="text"
-                className="flex-grow px-4 py-3 border border-purple-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:outline-none"
+                className="flex-grow px-4 py-3 border border-navy-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:outline-none"
                 placeholder="Type a message"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
               />
               <button
                 type="submit"
-                className="bg-gradient-to-r from-purple-600 to-orange-500 text-white p-3 rounded-xl hover:opacity-90 transition"
+                className="bg-gradient-to-r from-navy-600 to-red-500 text-white p-3 rounded-xl hover:opacity-90 transition"
               >
                 <Send />
               </button>
