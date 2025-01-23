@@ -1,4 +1,5 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState,useEffect} from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
     BarChart, 
     Bar, 
@@ -36,7 +37,7 @@ const ODashboard = () => {
   };
 
   const renderSection = () => {
-    switch(activeSection) {
+    switch (activeSection) {
       case 'events':
         return <PastEventsSection />;
       case 'create':
@@ -45,10 +46,13 @@ const ODashboard = () => {
         return <CertificatesSection />;
       case 'analysis':
         return <AnalysisSection />;
+      case 'submissions':
+        return <SubmissionsSection />;  // Add the new section here
       default:
         return <PastEventsSection />;
     }
   };
+  
 
   return (
     <div className="flex h-screen">
@@ -82,6 +86,12 @@ const ODashboard = () => {
             label="Generate Certificates" 
             active={activeSection === 'certificates'}
             onClick={() => setActiveSection('certificates')}
+          />
+          <NavItem 
+            icon={<Award />} 
+            label="View Submissions"  // New label for the submissions section
+            active={activeSection === 'submissions'}
+            onClick={() => setActiveSection('submissions')}
           />
           <NavItem 
             icon={<BarChart />} 
@@ -318,6 +328,59 @@ const CertificatesSection = () => (
     </div>
   </div>
 );
+
+const SubmissionsSection = () => {
+  const [hackathons, setHackathons] = useState([]);
+
+  useEffect(() => {
+    const fetchHackathons = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/hackathons');
+        const data = await response.json();
+        setHackathons(data);
+      } catch (error) {
+        console.error('Error fetching hackathons:', error);
+      }
+    };
+
+    fetchHackathons();
+  }, []);
+
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-6">All Hackathons</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {hackathons.length === 0 ? (
+          <p>No hackathons found.</p>
+        ) : (
+          hackathons.map((hackathon) => (
+            <HackathonCard key={hackathon._id} hackathon={hackathon} />
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
+
+const HackathonCard = ({ hackathon }) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    // Navigate to /sub?hackname=<event.title>
+    navigate(`/sub?hackname=${encodeURIComponent(hackathon.title)}`);
+  };
+
+  return (
+    <div className="bg-white p-4 rounded-lg shadow-md" onClick={handleClick}>
+      <h3 className="font-bold text-lg mb-2">{hackathon.title}</h3>
+      <p>Date: {hackathon.date}</p>
+      <p>Participants: {hackathon.participants}</p>
+      <button className="mt-3 bg-blue-500 text-white px-4 py-2 rounded">
+        View Details
+      </button>
+    </div>
+  );
+};
 
 const AnalysisSection = () => {
     const monthlyEventsData = [

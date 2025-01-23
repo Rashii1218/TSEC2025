@@ -85,6 +85,7 @@ import TeamDetails from "./TimeSchedule";
 import ODashboard from "./organizer/ODashboard";
 import Leaderboard from "./LeaderBoard";
 import CommitHistory from "./Version";
+import Sub from "./Submission";
 
 
 const App = () => {
@@ -114,6 +115,7 @@ const App = () => {
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/track" element={<CommitHistory owner="Rashii1218" repo="TsecRubix25" />} />
         <Route path="/ver" element={<TeamForm/>} />
+        <Route path="/sub" element={<Sub />} />
       </Routes>
     </Router>
   );
