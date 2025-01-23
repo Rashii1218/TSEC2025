@@ -71,16 +71,22 @@ import LoginPage from "./login/login";
 import EventsPage from "./components/EventsPage";
 import Team from "./team/Team";
 import Video from "./components/Video";
-import React from 'react';
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import DocumentEditor from './Document';
 import LiveForum from "./components/Mentor";
 import JudgeDashboard from './JudgeDashboard';
 import TeamListPage from './TeamListPage';
-import Profile from './UserProfile/Profile';
+
 import TeamForm from "./team/Register";
 import StudentProfile from "./profile/Profile";
-import ProjectSubmission from "./components/ProjectSubmission";
+
+
+import TeamDetails from "./TimeSchedule";
+import ODashboard from "./organizer/ODashboard";
+import Leaderboard from "./LeaderBoard";
+import CommitHistory from "./Version";
+
 
 const App = () => {
   return (
@@ -101,11 +107,18 @@ const App = () => {
         <Route path="/register" element={<TeamForm />} />
         <Route path="/profile" element={<StudentProfile/>} />
         <Route path="/document" element={<DocumentEditor />} />
+        <Route path="/mentor" element={<LiveForum />} />
+        <Route path="/schedule" element={<TeamDetails />} />
         <Route path="/video" element={<Video />} />
-        <Route path="/projectSubmission" element={<ProjectSubmission />}/>
+        <Route path="/organizer" element={<ODashboard />} />
+        <Route path="/event" element={<EventsPage />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/track" element={<CommitHistory owner="Rashii1218" repo="TsecRubix25" />} />
       </Routes>
     </Router>
   );
 };
+
+
 
 export default App;

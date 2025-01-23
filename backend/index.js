@@ -16,11 +16,7 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 const kmeans = require('node-kmeans');
-app.use(cors());
-
-const submissionRoutes = require('./submission');
-app.use('/api/submissions', submissionRoutes);
-
+const axios = require('axios');
 
 // Middleware configurations
 // app.use(cors({
@@ -258,6 +254,206 @@ app.get('/api/teams/:hackathonTitle', async (req, res) => {
   }
 });
 
+app.patch("/api/teams/:teamId/schedule", async (req, res) => {
+  const { teamId } = req.params;
+  const { scheduleTime } = req.body;
+
+  try {
+    const team = await Team.findByIdAndUpdate(
+      teamId,
+      { scheduleTime },
+      { new: true } // Return updated document
+    );
+
+    if (!team) return res.status(404).send("Team not found");
+    res.send(team);
+  } catch (err) {
+    res.status(500).send("Error updating schedule");
+  }
+});
+app.post('/api/hackathons', async (req, res) => {
+  const {
+    title,
+    date,
+    participants,
+    prize,
+    difficulty,
+    skills,
+    status,
+    winners
+  } = req.body;
+
+  try {
+    const newHackathon = new Hackathon({
+      title,
+      date,
+      participants,
+      prize,
+      difficulty,
+      skills: skills.split(','), // Convert skills into an array of strings
+      status,
+      winners: winners.split(','), // Convert winners into an array of strings
+    });
+
+    await newHackathon.save();
+    res.status(201).json({ message: 'Event created successfully', data: newHackathon });
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating event', error });
+  }
+});
+
+app.get('/api/hackathons', async (req, res) => {
+  try {
+    const hackathons = await Hackathon.find();
+    res.json(hackathons);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching hackathons', error });
+  }
+});
+app.get('/api/event/:hackname', async (req, res) => {
+  try {
+    const { hackname } = req.params;
+    console.log(hackname);
+    const event = await Hackathon.findOne({ title: hackname });
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+    res.status(200).json(event);
+  } catch (err) {
+    res.status(500).json({ message: 'Server Error', error: err.message });
+  }
+});
+
+app.get('/api/leaderboard/:hackathonTitle', async (req, res) => {
+  try {
+    const hackathonTitle = req.params.hackathonTitle;
+    console.log(`Received request for leaderboard of hackathon: ${hackathonTitle}`);
+
+    // Fetch teams for the specific hackathon
+    const teams = await Team.find({ hackathonId: hackathonTitle });
+    console.log(`Fetched teams for hackathon "${hackathonTitle}":`, teams);
+
+    // Fetch feedback for the specific hackathon
+    const teamNames = teams.map(team => team.teamName)
+    const feedbacks = await Feedback.find({ teamName: { $in: teamNames } });
+    console.log(`Fetched feedbacks for hackathon "${hackathonTitle}":`, feedbacks);
+
+    // Create a map of team feedback
+    const feedbackMap = new Map(
+      feedbacks.map(feedback => [
+        feedback.teamName.toLowerCase(),
+        {
+          innovation: feedback.innovation,
+          creativity: feedback.creativity,
+          ux: feedback.ux,
+          businessPotential: feedback.businessPotential,
+          feedback: feedback.feedback,
+          members: feedback.members
+        }
+      ])
+    );
+    console.log(`Constructed feedback map:`, feedbackMap);
+
+    // Combine team and feedback data
+    const leaderboardData = teams.map(team => {
+      const feedback = feedbackMap.get(team.teamName.toLowerCase()) || {};
+      const totalScore =
+        (feedback.innovation || 0) +
+        (feedback.creativity || 0) +
+        (feedback.ux || 0) +
+        (feedback.businessPotential || 0);
+
+      console.log(`Calculating total score for team "${team.teamName}":`, {
+        innovation: feedback.innovation || 0,
+        creativity: feedback.creativity || 0,
+        ux: feedback.ux || 0,
+        businessPotential: feedback.businessPotential || 0,
+        totalScore
+      });
+
+      return {
+        teamName: team.teamName,
+        teamMembers: team.teamMembers,
+        innovation: feedback.innovation || 0,
+        creativity: feedback.creativity || 0,
+        ux: feedback.ux || 0,
+        businessPotential: feedback.businessPotential || 0,
+        feedback: feedback.feedback || "No feedback",
+        totalScore: totalScore,
+        averageScore: totalScore / 4
+      };
+    });
+
+    // Sort and rank teams
+    const rankedLeaderboard = leaderboardData
+      .sort((a, b) => b.totalScore - a.totalScore)
+      .map((team, index) => ({
+        ...team,
+        rank: index + 1
+      }));
+    console.log(`Ranked leaderboard data:`, rankedLeaderboard);
+
+    res.json(rankedLeaderboard);
+  } catch (error) {
+    console.error('Leaderboard error:', error);
+    res.status(500).json({ message: 'Error generating leaderboard' });
+  }
+});
+const GITHUB_TOKEN = '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'; // Optional for private repos
+
+app.get('/api/commits', async (req, res) => {
+  const { owner, repo } = req.query; // Extract owner and repo from the query params
+
+  // Check if both owner and repo are provided
+  if (!owner || !repo) {
+    return res.status(400).send('Owner and repo parameters are required');
+  }
+
+  try {
+    const response = await axios.get(`https://api.github.com/repos/${owner}/${repo}/commits`);
+    res.json(response.data); // Send back the commit data
+  } catch (error) {
+    console.error('Error fetching commits:', error.message);
+    res.status(500).send('Error fetching commit data');
+  }
+});
+
+app.get('/api/project-data', async (req, res) => {
+  const { owner, repo } = req.query;
+
+  if (!owner || !repo) {
+    return res.status(400).send('Owner and repo parameters are required');
+  }
+
+  try {
+    // Fetch commits
+    const commitsResponse = await axios.get(`https://api.github.com/repos/${owner}/${repo}/commits`);
+
+    // Fetch branches
+    const branchesResponse = await axios.get(`https://api.github.com/repos/${owner}/${repo}/branches`);
+
+    // Fetch pull requests
+    const pullsResponse = await axios.get(`https://api.github.com/repos/${owner}/${repo}/pulls`);
+
+    // Fetch issues
+    const issuesResponse = await axios.get(`https://api.github.com/repos/${owner}/${repo}/issues`);
+
+    // Fetch repository details (stars, forks, etc.)
+    const repoResponse = await axios.get(`https://api.github.com/repos/${owner}/${repo}`);
+
+    // Send all data in a single response
+    res.json({
+      commits: commitsResponse.data,
+      branches: branchesResponse.data,
+      pulls: pullsResponse.data,
+      issues: issuesResponse.data,
+      repo: repoResponse.data,
+    });
+  } catch (error) {
+    console.error('Error fetching project data:', error.response ? error.response.data : error.message);
+    res.status(500).send('Error fetching project data');
+  }
+});
 
 // Start the server
 app.listen(port, () => {

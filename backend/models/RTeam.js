@@ -4,39 +4,43 @@ const teamSchema = new mongoose.Schema({
   teamName: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   teamMembers: [
     {
       name: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
       },
       email: {
         type: String,
         required: true,
         trim: true,
-        match: [/.+\@.+\..+/, 'Please fill a valid email address']
-      }
-    }
+        match: [/.+\@.+\..+/, 'Please fill a valid email address'],
+      },
+    },
   ],
   hackathonId: {
-    type: String,  
-    required: true
+    type: String,
+    required: true,
   },
   userId: {
-    type: String, 
-    required: true
+    type: String,
+    required: true,
   },
   isRegistered: {
     type: Boolean,
-    default: false
+    default: false,
+  },
+  scheduleTime: {
+    type: Date, // Stores the scheduled session time
+    default: null, // Initially, there’s no scheduled session
   },
   createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model('Team', teamSchema);
