@@ -10,6 +10,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 
 import JudgeDashboard from './JudgeDashboard';
 import TeamListPage from './TeamListPage';
+import TeamForm from "./team/Register";
 //import "@blocknote/core/fonts/inter.css";
 //import { BlockNoteView } from "@blocknote/mantine";
 //import "@blocknote/mantine/style.css";
@@ -48,6 +49,7 @@ const App = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/events" element={<EventsPage />} />
         <Route path="/events/team" element={<Team />} />
+        <Route path="/register" element={<TeamForm />} />
       </Routes>
 
       {/* Renders the BlockNote editor instance */}

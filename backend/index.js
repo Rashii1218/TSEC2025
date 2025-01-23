@@ -11,7 +11,7 @@ const User = require('./models/User'); // MongoDB User model
 const Hackathon = require('./models/Hackathons');
 const bodyParser = require('body-parser');
 const Feedback = require('./models/Teams');
-
+const Team = require('./models/RTeam');
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
@@ -193,6 +193,17 @@ app.post('/api/teams/feedback', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send('Error saving feedback');
+  }
+});
+app.post('/api/teams', async (req, res) => {
+  const { teamName, teamMembers } = req.body;
+
+  try {
+    const newTeam = new Team({ teamName, teamMembers });
+    await newTeam.save();
+    res.status(201).json({ message: 'Team created successfully', team: newTeam });
+  } catch (error) {
+    res.status(400).json({ message: 'Error creating team', error: error.message });
   }
 });
 
