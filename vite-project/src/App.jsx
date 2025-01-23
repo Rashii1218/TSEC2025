@@ -80,6 +80,8 @@ import TeamListPage from './TeamListPage';
 import Profile from './UserProfile/Profile';
 import TeamForm from "./team/Register";
 import StudentProfile from "./profile/Profile";
+import LiveForum from "./Mentor";
+import TeamDetails from "./TimeSchedule";
 
 const App = () => {
   return (
@@ -100,6 +102,8 @@ const App = () => {
         <Route path="/register" element={<TeamForm />} />
         <Route path="/profile" element={<StudentProfile/>} />
         <Route path="/document" element={<DocumentEditor />} />
+        <Route path="/mentor" element={<LiveForum />} />
+        <Route path="/schedule" element={<TeamDetails />} />
       </Routes>
     </Router>
   );

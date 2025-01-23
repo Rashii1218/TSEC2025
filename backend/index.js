@@ -240,6 +240,23 @@ app.get('/api/teams/:hackathonTitle', async (req, res) => {
   }
 });
 
+app.patch("/api/teams/:teamId/schedule", async (req, res) => {
+  const { teamId } = req.params;
+  const { scheduleTime } = req.body;
+
+  try {
+    const team = await Team.findByIdAndUpdate(
+      teamId,
+      { scheduleTime },
+      { new: true } // Return updated document
+    );
+
+    if (!team) return res.status(404).send("Team not found");
+    res.send(team);
+  } catch (err) {
+    res.status(500).send("Error updating schedule");
+  }
+});
 
 // Start the server
 app.listen(port, () => {
