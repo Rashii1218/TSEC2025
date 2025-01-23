@@ -18,6 +18,8 @@ const port = process.env.PORT || 3000;
 const kmeans = require('node-kmeans');
 const axios = require('axios');
 
+const Version = require('./models/Version');
+
 // Middleware configurations
 app.use(cors({
   credentials: true,
@@ -440,6 +442,25 @@ app.get('/api/project-data', async (req, res) => {
   } catch (error) {
     console.error('Error fetching project data:', error.response ? error.response.data : error.message);
     res.status(500).send('Error fetching project data');
+  }
+});
+
+app.post('/api/ver', async (req, res) => {
+  const { hackname, teamName, gitUrl } = req.body;
+
+  if (!hackname || !teamName || !gitUrl) {
+    return res.status(400).json({ message: 'All fields (hackname, teamName, gitUrl) are required.' });
+  }
+
+  try {
+    // Create a new Team instance and save it to the database
+    const newTeam = new Version({ hackname, teamName, gitUrl });
+    await newTeam.save();
+
+    res.status(201).json({ message: 'Form submitted successfully!', team: newTeam });
+  } catch (error) {
+    console.error('Error saving team data:', error);
+    res.status(500).json({ message: 'Error submitting form. Please try again.' });
   }
 });
 

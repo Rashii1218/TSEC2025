@@ -78,7 +78,7 @@ import LiveForum from "./components/Mentor";
 import JudgeDashboard from './JudgeDashboard';
 import TeamListPage from './TeamListPage';
 import Profile from './UserProfile/Profile';
-import TeamForm from "./team/Register";
+import TeamForm from "./version/ver_detail";
 import StudentProfile from "./profile/Profile";
 
 import TeamDetails from "./TimeSchedule";
@@ -113,6 +113,7 @@ const App = () => {
         <Route path="/event" element={<EventsPage />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/track" element={<CommitHistory owner="Rashii1218" repo="TsecRubix25" />} />
+        <Route path="/ver" element={<TeamForm/>} />
       </Routes>
     </Router>
   );
