@@ -64,18 +64,21 @@
 
 // export default App;
 
+//import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import LandingPage from "./components/LandingPage";
+import AboutPage from "./components/About";
+import LoginPage from "./login/login";
+import EventsPage from "./components/EventsPage";
+import Team from "./team/Team";
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import LandingPage from './components/LandingPage';
-import AboutPage from './components/About';
-import LoginPage from './login/login';
-import EventsPage from './components/EventsPage';
-import Team from './team/Team';
 import DocumentEditor from './Document';
 import Video from './components/Video';
 import JudgeDashboard from './JudgeDashboard';
 import TeamListPage from './TeamListPage';
 import Profile from './UserProfile/Profile';
+import TeamForm from "./team/Register";
 
 const App = () => {
   return (
@@ -87,19 +90,14 @@ const App = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/events" element={<EventsPage />} />
         
-        {/* Nested/Additional Routes */}
         <Route path="/events/team" element={<Team />} />
         <Route path="/judgedashboard" element={<JudgeDashboard />} />
         <Route path="/teams" element={<TeamListPage />} />
         <Route path="/profile" element={<Profile />} />
         
-        {/* Default Redirect for Unknown Routes */}
         <Route path="*" element={<Navigate to="/" />} />
+        <Route path="/register" element={<TeamForm />} />
       </Routes>
-      
-      {/* Components Rendered Outside of Routing */}
-      <DocumentEditor />
-      <Video />
     </Router>
   );
 };
