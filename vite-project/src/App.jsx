@@ -1,22 +1,106 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import LandingPage from "./components/LandingPage";
-import AboutPage from "./components/About";
-import LoginPage from "./login/login";
-import EventsPage from "./components/EventsPage";
-import DocumentEditor from "./Document";
+// //import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+// import LandingPage from "./components/LandingPage";
+// import AboutPage from "./components/About";
+// import LoginPage from "./login/login";
+// import EventsPage from "./components/EventsPage";
+
+// import Team from "./team/Team";
+// <<<<<<< Updated upstream
+// import "@blocknote/core/fonts/inter.css";
+// import { BlockNoteView } from "@blocknote/mantine";
+// import "@blocknote/mantine/style.css";
+// import { useCreateBlockNote } from "@blocknote/react";
+// import Video from "./components/Video";
+// >>>>>>> 000efb3e0baee382cec88341f56f4a1a13357d0f
+// import DocumentEditor from "./Document";
+// const App = () => {
+//    return (
+//     <>
+// <<<<<<< HEAD
+//     <Router>
+//       <Routes>
+//         <Route path="/" element={<LandingPage />} />
+//         <Route path="/about" element={<AboutPage />} />
+//         <Route path="/login" element={<LoginPage />} />
+//         <Route path="/events" element={<EventsPage />} />
+//       </Routes>
+//     </Router>
+//       <DocumentEditor />
+// =======
+//       <DocumentEditor/>
+//       <Video/>
+// >>>>>>> 000efb3e0baee382cec88341f56f4a1a13357d0f
+//     </>
+// =======
+// import { useState } from 'react'
+// import React from 'react';
+// import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+// import LandingPage from "./components/LandingPage";
+// import AboutPage from "./components/About";
+// import LoginPage from "./login/login";
+// import EventsPage from "./components/EventsPage";
+// import JudgeDashboard from './JudgeDashboard';
+// import TeamListPage from './TeamListPage';
+
+// const App = () => {
+  
+//   return (
+//     <Router>
+//       <Routes>
+//         <Route path="/" element={<LandingPage />} />
+//         <Route path="/judgedashboard" element={<JudgeDashboard />} />
+//         <Route path="*" element={<Navigate to="/" />} />
+//         <Route path="/teams" element={<TeamListPage />} />
+//         <Route path="/about" element={<AboutPage />} />
+//         <Route path="/login" element={<LoginPage />} />
+//         <Route path="/events" element={<EventsPage />} />
+//         <Route path="/events/team" element={<Team />} />
+//       </Routes>
+//     </Router>
+//     <DocumentEditor/>
+//     <Video/>000efb3e0baee382cec88341f56f4a1a13357d0f
+//   );
+// };
+
+// export default App;
+
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import LandingPage from './components/LandingPage';
+import AboutPage from './components/About';
+import LoginPage from './login/login';
+import EventsPage from './components/EventsPage';
+import Team from './team/Team';
+import DocumentEditor from './Document';
+import Video from './components/Video';
+import JudgeDashboard from './JudgeDashboard';
+import TeamListPage from './TeamListPage';
+import Profile from './UserProfile/Profile';
+
 const App = () => {
-   return (
-    <>
+  return (
     <Router>
       <Routes>
+        {/* Main Pages */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/events" element={<EventsPage />} />
+        
+        {/* Nested/Additional Routes */}
+        <Route path="/events/team" element={<Team />} />
+        <Route path="/judgedashboard" element={<JudgeDashboard />} />
+        <Route path="/teams" element={<TeamListPage />} />
+        <Route path="/profile" element={<Profile />} />
+        
+        {/* Default Redirect for Unknown Routes */}
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-    </Router>
+      
+      {/* Components Rendered Outside of Routing */}
       <DocumentEditor />
-    </>
+      <Video />
+    </Router>
   );
 };
 
