@@ -10,6 +10,7 @@ import Underline from '@tiptap/extension-underline';
 import BulletList from '@tiptap/extension-bullet-list';
 import ListItem from '@tiptap/extension-list-item';
 import TextAlign from '@tiptap/extension-text-align';
+import { Link } from 'react-router-dom';
 import {
   Bold as BoldIcon,
   Italic as ItalicIcon,
@@ -72,6 +73,9 @@ const DocumentEditor = () => {
   if (!editor) {
     return <div>Loading editor...</div>;
   }
+  const handleRedirectToVideo = () => {
+    navigate('/video');
+  };
 
   return (
     <div className="flex min-h-screen">
@@ -212,7 +216,14 @@ const DocumentEditor = () => {
               <span>{editor.storage.characterCount?.characters() || 0} characters</span>
               <span className="text-[#ff5a05]">Changes save automatically</span>
             </div>
+            
           </div>
+          <Link
+        to="/video"
+        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 inline-block text-center"
+      >
+       Video Chat 
+      </Link>
         </div>
       </div>
       <ChatRoom/>
