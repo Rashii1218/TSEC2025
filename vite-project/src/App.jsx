@@ -70,11 +70,11 @@ import AboutPage from "./components/About";
 import LoginPage from "./login/login";
 import EventsPage from "./components/EventsPage";
 import Team from "./team/Team";
-
+import Video from "./components/Video";
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import DocumentEditor from './Document';
-import Video from './components/Video';
+import LiveForum from "./components/Mentor";
 import JudgeDashboard from './JudgeDashboard';
 import TeamListPage from './TeamListPage';
 import Profile from './UserProfile/Profile';
@@ -94,12 +94,13 @@ const App = () => {
         <Route path="/events/team" element={<Team />} />
         <Route path="/judgedashboard" element={<JudgeDashboard />} />
         <Route path="/teams" element={<TeamListPage />} />
-       
+        <Route path="/mentor" element={<LiveForum />} />
         
         <Route path="*" element={<Navigate to="/" />} />
         <Route path="/register" element={<TeamForm />} />
         <Route path="/profile" element={<StudentProfile/>} />
         <Route path="/document" element={<DocumentEditor />} />
+        <Route path="/video" element={<Video />} />
       </Routes>
     </Router>
   );
