@@ -1,6 +1,7 @@
 import React from 'react';
 import { Calendar, Trophy, Users, MessageCircle, ArrowRight, Code, Award } from 'lucide-react';
 import { motion } from "framer-motion";
+import Navbar from './Navbar';
 
 const EventsPage = () => {
   const containerVariants = {
@@ -58,6 +59,7 @@ const EventsPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-purple-400 to-black text-white">
+      <Navbar/>
       <div className="max-w-7xl mx-auto px-4 py-16">
 
         {/* Welcome Section */}
@@ -66,30 +68,35 @@ const EventsPage = () => {
         </h1>
 
         {/* Leaderboard Section */}
-        <h2 className="text-3xl font-bold text-white mb-8 flex items-center">
-          <Award className="mr-2 text-yellow-500" /> Leaderboard
-        </h2>
-        <motion.div
-          className="bg-gradient-to-br from-black to-purple-950 rounded-xl p-6 shadow-lg mb-16 hover:scale-105 transition-transform duration-300 ease-in-out"
-          variants={cardVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <div className="space-y-4">
-            {leaderboard.map((team, index) => (
-              <div
-                key={index}
-                className="flex justify-between items-center text-white hover:bg-purple-400 p-2 rounded-md transition-all duration-300 ease-in-out"
-              >
-                <div className="text-lg font-semibold">{team.name}</div>
-                <div className="text-lg font-semibold">{team.points} pts</div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-white mb-8 flex justify-center items-center">
+            <Award className="mr-2 text-yellow-500" /> Leaderboard
+          </h2>
+          <motion.div
+            className="bg-gradient-to-br from-black to-purple-600 rounded-xl p-6 shadow-lg mb-16 max-w-4xl mx-auto hover:scale-105 transition-transform duration-300 ease-in-out"
+            variants={cardVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <div className="space-y-4">
+              {leaderboard.map((team, index) => (
+                <motion.div
+                  key={index}
+                  className="flex justify-between items-center text-white bg-transparent hover:bg-purple-400 p-2 rounded-md transition-all duration-300 ease-in-out"
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <div className="text-lg font-semibold">{team.name}</div>
+                  <div className="text-lg font-semibold">{team.points} pts</div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
 
+        {/* Features Section */}
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16"
+          className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 max-w-4xl mx-auto text-center"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -100,8 +107,8 @@ const EventsPage = () => {
               className={`bg-gradient-to-br ${feature.gradient} rounded-xl p-6 shadow-lg hover:scale-105 transition-all duration-300 ease-in-out`}
               variants={cardVariants}
             >
-              <div className="flex items-center mb-4">
-                <feature.icon className="w-12 h-12 text-white mr-4" />
+              <div className="flex flex-col items-center mb-4">
+                <feature.icon className="w-12 h-12 text-white mb-4" />
                 <h3 className="text-2xl font-bold text-white">{feature.title}</h3>
               </div>
               <p className="text-white">{feature.description}</p>
@@ -109,33 +116,36 @@ const EventsPage = () => {
           ))}
         </motion.div>
 
-        <h2 className="text-3xl font-bold text-white mb-8 flex items-center">
-          <Calendar className="mr-2 text-orange-400" /> Timeline
-        </h2>
-        <motion.div
-          className="bg-gradient-to-br from-black to-purple-950 rounded-xl p-8 border border-purple-800 shadow-lg"
-          variants={cardVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <div className="relative">
-            {timelinePhases.map((item) => {
-              const elapsed = isPhaseElapsed(item.date);
-              return (
-                <div key={item.phase} className="relative pl-8 pb-8 last:pb-0">
-                  <div className={`absolute left-0 top-0 h-full w-px ${elapsed ? "bg-gray-500" : "bg-gradient-to-b from-orange-400 to-purple-500"}`} />
-                  <div className={`absolute left-[-4px] top-2 w-2 h-2 rounded-full ${elapsed ? "bg-gray-500" : "bg-orange-400"}`} />
-                  <div className="group">
-                    <h3 className={`text-xl font-bold ${elapsed ? "text-gray-500" : "text-white"} mb-1 group-hover:text-orange-400 transition-colors`}>
-                      {item.phase}
-                    </h3>
-                    <p className="text-purple-300">{item.date}</p>
+        {/* Timeline Section */}
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-white mb-8 flex justify-center items-center">
+            <Calendar className="mr-2 text-orange-400" /> Timeline
+          </h2>
+          <motion.div
+            className="bg-gradient-to-br from-black to-purple-950 rounded-xl p-8 border border-purple-800 shadow-lg max-w-4xl mx-auto"
+            variants={cardVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <div className="relative">
+              {timelinePhases.map((item) => {
+                const elapsed = isPhaseElapsed(item.date);
+                return (
+                  <div key={item.phase} className="relative pl-8 pb-8 last:pb-0">
+                    <div className={`absolute left-0 top-0 h-full w-px ${elapsed ? "bg-gray-500" : "bg-gradient-to-b from-orange-400 to-purple-500"}`} />
+                    <div className={`absolute left-[-4px] top-2 w-2 h-2 rounded-full ${elapsed ? "bg-gray-500" : "bg-orange-400"}`} />
+                    <div className="group">
+                      <h3 className={`text-xl font-bold ${elapsed ? "text-gray-500" : "text-white"} mb-1 group-hover:text-orange-400 transition-colors`}>
+                        {item.phase}
+                      </h3>
+                      <p className="text-purple-300">{item.date}</p>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        </motion.div>
+                );
+              })}
+            </div>
+          </motion.div>
+        </div>
       </div>
     </div>
   );

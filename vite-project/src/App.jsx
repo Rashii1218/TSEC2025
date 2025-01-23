@@ -3,11 +3,10 @@ import LandingPage from "./components/LandingPage";
 import AboutPage from "./components/About";
 import LoginPage from "./login/login";
 import EventsPage from "./components/EventsPage";
-import Team from "./team/Team";
-
+import DocumentEditor from "./Document";
 const App = () => {
-  // Create the editor with default settings
-  return (
+   return (
+    <>
     <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
@@ -16,6 +15,8 @@ const App = () => {
         <Route path="/events" element={<EventsPage />} />
       </Routes>
     </Router>
+      <DocumentEditor />
+    </>
   );
 };
 

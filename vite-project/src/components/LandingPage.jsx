@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Calendar, Trophy, Users, Clock, Star } from "lucide-react";
 import { motion } from "framer-motion";
