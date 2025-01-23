@@ -4,23 +4,6 @@ import AboutPage from "./components/About";
 import LoginPage from "./login/login";
 import EventsPage from "./components/EventsPage";
 import Team from "./team/Team";
-<<<<<<< Updated upstream
-import "@blocknote/core/fonts/inter.css";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
-import { useCreateBlockNote } from "@blocknote/react";
-import Video from "./components/Video";
-import DocumentEditor from "./Document";
-const App = () => {
- 
-
-
-  return (
-    <>
-      <DocumentEditor/>
-      <Video/>
-    </>
-=======
 import { useState } from 'react'
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
@@ -71,7 +54,6 @@ const App = () => {
       {/* <h1>BlockNote Editor Example</h1>
       <BlockNoteView editor={editor} editable={true} /> */}
     </Router>
->>>>>>> Stashed changes
   );
 };
 
