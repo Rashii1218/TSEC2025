@@ -16,11 +16,29 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 const kmeans = require('node-kmeans');
+app.use(cors());
+
+const submissionRoutes = require('./submission');
+app.use('/api/submissions', submissionRoutes);
+
+
 // Middleware configurations
+// app.use(cors({
+//   credentials: true,
+//   origin: 'http://localhost:5173',
+// }));
+// In your existing index.js, add:
+
 app.use(cors({
-  credentials: true,
-  origin: 'http://localhost:5173',
+  origin: ['http://localhost:5173', 'http://localhost:3000'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true // Add this if credentials are being used
 }));
+
+
+// Add these headers explicitly for preflight requests
+app.options('*', cors());
 app.use(express.json());
 
 
@@ -196,16 +214,50 @@ app.post('/api/teams/feedback', async (req, res) => {
   }
 });
 app.post('/api/teams', async (req, res) => {
-  const { teamName, teamMembers } = req.body;
+  const { teamName, teamMembers, userId, hackathonId } = req.body;
+
+  // Check if all required data is provided
+  if (!teamName || !teamMembers || !userId || !hackathonId) {
+    return res.status(400).json({ message: 'Missing required fields: teamName, teamMembers, userId, hackathonId' });
+  }
 
   try {
-    const newTeam = new Team({ teamName, teamMembers });
+    // Create new team with userId and hackathonId
+    const newTeam = new Team({
+      teamName,
+      teamMembers,
+      userId, // Include the userId of the person registering the team
+      hackathonId // Store the hackathonId to link the team with a specific event
+    });
+
+    // Save the new team to the database
     await newTeam.save();
-    res.status(201).json({ message: 'Team created successfully', team: newTeam });
+
+    // Respond with success message
+    res.status(201).json({
+      message: 'Team created successfully',
+      team: newTeam
+    });
   } catch (error) {
-    res.status(400).json({ message: 'Error creating team', error: error.message });
+    // Handle any errors that occur during team creation
+    res.status(400).json({
+      message: 'Error creating team',
+      error: error.message
+    });
   }
 });
+app.get('/api/teams/:hackathonTitle', async (req, res) => {
+  try {
+    const hackathonTitle = req.params.hackathonTitle;
+    // Find teams by hackathonTitle
+    const teams = await Team.find({ hackathonId: hackathonTitle });
+    res.json(teams);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error fetching teams' });
+  }
+});
+
 
 // Start the server
 app.listen(port, () => {

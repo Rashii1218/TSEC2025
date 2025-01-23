@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Trophy, Users, MessageCircle, Code, Award, ArrowRight, ClipboardCheck } from 'lucide-react';
 import { motion } from "framer-motion";
+import { useNavigate } from 'react-router-dom';
+import Navbar from './Navbar';
 
 const EventsPage = () => {
   const [iframeVisible, setIframeVisible] = useState(false);
@@ -67,6 +69,13 @@ const EventsPage = () => {
       icon: ClipboardCheck,
       gradient: "from-red-400 to-yellow-500",
       onClick: () => setRegisterFormVisible(true)
+    },
+    {
+      title: "Collaboration Workspace",
+      description: "Collaborate with your team in a shared workspace",
+      icon: Box,
+      gradient: "from-blue-500 to-green-500",
+      onClick: () => navigate('/document')
     }
   ];
 
@@ -139,35 +148,52 @@ const EventsPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-purple-400 to-black text-white">
+      <Navbar/>
       {!iframeVisible && !registerFormVisible && (
         <div className="max-w-7xl mx-auto px-4 py-16">
-          {/* Welcome Section */}
-          <h1 className="text-5xl font-bold text-center mb-16 bg-gradient-to-r from-orange-600 via-purple-800 to-pink-600 text-transparent bg-clip-text">
-            Welcome to the Events Page
+          <h1 className="text-5xl font-bold text-center mb-4 bg-gradient-to-r from-orange-600 via-purple-800 to-pink-600 text-transparent bg-clip-text">
+            HACKATHON 1
           </h1>
+          <div className="mb-16">
+    <video
+    autoPlay
+      controls
+      className="w-full h-auto rounded-lg shadow-lg"
+      poster="your-thumbnail.jpg" // Optional: Add a thumbnail if the video isn't playing
+    >
+      <source src="/hack_vid.mp4" type="video/mp4" />
+   
+    
+    </video>
+  </div>
+          <p className="text-lg text-center mb-16">
+            Join us for an exciting hackathon filled with challenges, workshops, and networking opportunities. Showcase your skills, build innovative solutions, and compete for amazing prizes!
+          </p>
 
           {/* Leaderboard Section */}
-          <h2 className="text-3xl font-bold text-white mb-8 flex items-center">
-            <Award className="mr-2 text-yellow-500" /> Leaderboard
-          </h2>
-          <motion.div
-            className="bg-gradient-to-br from-black to-purple-950 rounded-xl p-6 shadow-lg mb-16 hover:scale-105 transition-transform duration-300 ease-in-out"
-            variants={cardVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <div className="space-y-4">
-              {leaderboard.map((team, index) => (
-                <div
-                  key={index}
-                  className="flex justify-between items-center text-white hover:bg-purple-400 p-2 rounded-md transition-all duration-300 ease-in-out"
-                >
-                  <div className="text-lg font-semibold">{team.name}</div>
-                  <div className="text-lg font-semibold">{team.points} pts</div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
+          <div className="mb-16">
+            <h2 className="text-3xl font-bold text-white flex items-center mb-4">
+              <Award className="mr-2 text-yellow-500" /> Leaderboard
+            </h2>
+            <motion.div
+              className="bg-gradient-to-br from-black to-purple-950 rounded-xl p-6 shadow-lg hover:scale-105 transition-transform duration-300 ease-in-out"
+              variants={cardVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <div className="space-y-4">
+                {leaderboard.map((team, index) => (
+                  <div
+                    key={index}
+                    className="flex justify-between items-center text-white hover:bg-purple-400 p-2 rounded-md transition-all duration-300 ease-in-out"
+                  >
+                    <div className="text-lg font-semibold">{team.name}</div>
+                    <div className="text-lg font-semibold">{team.points} pts</div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
 
           {/* Features Section */}
           <motion.div
@@ -193,33 +219,35 @@ const EventsPage = () => {
           </motion.div>
 
           {/* Timeline Section */}
-          <h2 className="text-3xl font-bold text-white mb-8 flex items-center">
-            <Calendar className="mr-2 text-orange-400" /> Timeline
-          </h2>
-          <motion.div
-            className="bg-gradient-to-br from-black to-purple-950 rounded-xl p-8 border border-purple-800 shadow-lg"
-            variants={cardVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <div className="relative">
-              {timelinePhases.map((item) => {
-                const elapsed = isPhaseElapsed(item.date);
-                return (
-                  <div key={item.phase} className="relative pl-8 pb-8 last:pb-0">
-                    <div className={`absolute left-0 top-0 h-full w-px ${elapsed ? "bg-gray-500" : "bg-gradient-to-b from-orange-400 to-purple-500"}`} />
-                    <div className={`absolute left-[-4px] top-2 w-2 h-2 rounded-full ${elapsed ? "bg-gray-500" : "bg-orange-400"}`} />
-                    <div className="group">
-                      <h3 className={`text-xl font-bold ${elapsed ? "text-gray-500" : "text-white"} mb-1 group-hover:text-orange-400 transition-colors`}>
-                        {item.phase}
-                      </h3>
-                      <p className="text-purple-300">{item.date}</p>
+          <div className="mb-16">
+            <h2 className="text-3xl font-bold text-white flex items-center mb-4">
+              <Calendar className="mr-2 text-orange-400" /> Timeline
+            </h2>
+            <motion.div
+              className="bg-gradient-to-br from-black to-purple-950 rounded-xl p-8 border border-purple-800 shadow-lg"
+              variants={cardVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <div className="relative">
+                {timelinePhases.map((item) => {
+                  const elapsed = isPhaseElapsed(item.date);
+                  return (
+                    <div key={item.phase} className="relative pl-8 pb-8 last:pb-0">
+                      <div className={`absolute left-0 top-0 h-full w-px ${elapsed ? "bg-gray-500" : "bg-gradient-to-b from-orange-400 to-purple-500"}`} />
+                      <div className={`absolute left-[-4px] top-2 w-2 h-2 rounded-full ${elapsed ? "bg-gray-500" : "bg-orange-400"}`} />
+                      <div className="group">
+                        <h3 className={`text-xl font-bold ${elapsed ? "text-gray-500" : "text-white"} mb-1 group-hover:text-orange-400 transition-colors`}>
+                          {item.phase}
+                        </h3>
+                        <p className="text-purple-300">{item.date}</p>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          </motion.div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </div>
         </div>
       )}
 
