@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { Calendar, Trophy, Users, MessageCircle, Code, Award, ArrowRight, ClipboardCheck } from 'lucide-react';
+import { Calendar, Trophy, Users, MessageCircle, Code, Award, ArrowRight, ClipboardCheck, Box } from 'lucide-react';
 import { motion } from "framer-motion";
+import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
 
 const EventsPage = () => {
   const [iframeVisible, setIframeVisible] = useState(false);
   const [registerFormVisible, setRegisterFormVisible] = useState(false);
   const [teamName, setTeamName] = useState('');
   const [teamMembers, setTeamMembers] = useState([{ name: '', email: '' }]);
+
+  const navigate = useNavigate(); // Initialize the navigate function
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -47,6 +50,13 @@ const EventsPage = () => {
       icon: ClipboardCheck,
       gradient: "from-red-400 to-yellow-500",
       onClick: () => setRegisterFormVisible(true)
+    },
+    {
+      title: "Collaboration Workspace",
+      description: "Collaborate with your team in a shared workspace",
+      icon: Box,
+      gradient: "from-blue-500 to-green-500",
+      onClick: () => navigate('/document') // Redirect to /workspace on click
     }
   ];
 
@@ -86,9 +96,12 @@ const EventsPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const teamData = { teamName, teamMembers };
-
+  
+    const userId = localStorage.getItem('userId'); // Get userId from localStorage
+    const hackathonId = "Hackathon 1"; // Hardcoding hackathonId
+  
+    const teamData = { teamName, teamMembers, userId, hackathonId };
+  
     try {
       const response = await fetch('http://localhost:3000/api/teams', {
         method: 'POST',
@@ -97,7 +110,7 @@ const EventsPage = () => {
         },
         body: JSON.stringify(teamData),
       });
-
+  
       if (response.ok) {
         const data = await response.json();
         alert('Team registered successfully!');
@@ -272,7 +285,7 @@ const EventsPage = () => {
       {iframeVisible && (
         <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70">
           <iframe
-            src="https://www.example.com"
+            src="http://localhost:8501"
             title="Team Formation"
             className="w-full h-full border-0"
           />

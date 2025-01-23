@@ -35,6 +35,10 @@ function JudgeDashboard() {
   }, []);
 
   const handleNavigate = (hackathonTitle) => {
+    // Store the hackathon title in localStorage
+    localStorage.setItem('selectedHackathon', hackathonTitle);
+
+    // Navigate to the teams page
     navigate(`/teams?hackathon=${encodeURIComponent(hackathonTitle)}`);
   };
 
@@ -95,7 +99,7 @@ function JudgeDashboard() {
             </div>
             <div
               className="status"
-              onClick={() => handleNavigate(hackathon.title)}
+              onClick={() => handleNavigate(hackathon.title)} // When clicked, store and navigate
             >
               {hackathon.status}
             </div>

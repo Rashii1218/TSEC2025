@@ -79,6 +79,7 @@ import JudgeDashboard from './JudgeDashboard';
 import TeamListPage from './TeamListPage';
 import Profile from './UserProfile/Profile';
 import TeamForm from "./team/Register";
+import StudentProfile from "./profile/Profile";
 
 const App = () => {
   return (
@@ -93,10 +94,12 @@ const App = () => {
         <Route path="/events/team" element={<Team />} />
         <Route path="/judgedashboard" element={<JudgeDashboard />} />
         <Route path="/teams" element={<TeamListPage />} />
-        <Route path="/profile" element={<Profile />} />
+       
         
         <Route path="*" element={<Navigate to="/" />} />
         <Route path="/register" element={<TeamForm />} />
+        <Route path="/profile" element={<StudentProfile/>} />
+        <Route path="/document" element={<DocumentEditor />} />
       </Routes>
     </Router>
   );
