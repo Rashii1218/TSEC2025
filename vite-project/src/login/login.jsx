@@ -218,7 +218,7 @@ const LoginPage = () => {
       } 
       else if(response.data.user.role === 'user'){
         localStorage.setItem('userId', response.data.user._id);
-        navigate('/profile');
+        navigate('/');
       }
         else {
         setError('Access denied for this role.');

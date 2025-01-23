@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, Trophy, Users, MessageCircle, Code, Award, ArrowRight, ClipboardCheck } from 'lucide-react';
 import { motion } from "framer-motion";
 
@@ -7,6 +7,26 @@ const EventsPage = () => {
   const [registerFormVisible, setRegisterFormVisible] = useState(false);
   const [teamName, setTeamName] = useState('');
   const [teamMembers, setTeamMembers] = useState([{ name: '', email: '' }]);
+
+  const [userId, setUserId] = useState(null);
+  const [hackathonId, setHackathonId] = useState(null);
+
+  useEffect(() => {
+    const storedUserId = localStorage.getItem('userId');
+    const storedHackathonId = localStorage.getItem('selectedHackathonId'); // Changed from hackathonId
+    setUserId(storedUserId);
+    setHackathonId(storedHackathonId);
+  }, []);
+
+  // Add a guard clause at the top of the component
+  if (!userId || !hackathonId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-500">
+        User or hackathon ID is missing. Please log in and select a hackathon.
+      </div>
+    );
+  }
+
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -87,7 +107,9 @@ const EventsPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const teamData = { teamName, teamMembers };
+    const teamData = { teamName, teamMembers,userId,hackathonId,isRegistered:true };
+
+    console.log('Submitting team data:', teamData);
 
     try {
       const response = await fetch('http://localhost:3000/api/teams', {
@@ -101,6 +123,7 @@ const EventsPage = () => {
       if (response.ok) {
         const data = await response.json();
         alert('Team registered successfully!');
+        localStorage.setItem('isRegistered', 'true');
         setTeamName('');
         setTeamMembers([{ name: '', email: '' }]);
         setRegisterFormVisible(false);
@@ -272,7 +295,7 @@ const EventsPage = () => {
       {iframeVisible && (
         <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70">
           <iframe
-            src="https://www.example.com"
+            src="http://localhost:8501"
             title="Team Formation"
             className="w-full h-full border-0"
           />

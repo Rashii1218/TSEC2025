@@ -5,12 +5,14 @@ import { motion } from "framer-motion";
 import NavBar from "./Navbar";
 import About from "./About";
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
   const [upcomingHackathons, setUpcomingHackathons] = useState([]);
   const [pastHackathons, setPastHackathons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   // Fetch data from backend
   useEffect(() => {
@@ -51,6 +53,13 @@ const LandingPage = () => {
   const fadeInVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 1 } },
+  };
+
+  const handleHackathonClick = (title) => {
+    localStorage.setItem("selectedHackathonId", title);
+    console.log("Selected Hackathon Title:", title); 
+    navigate('/events');
+
   };
 
   if (loading) {
@@ -112,6 +121,7 @@ const LandingPage = () => {
                 key={hack.title}
                 className={`bg-gradient-to-br from-black to-purple-950 rounded-xl p-6 border border-purple-800 shadow-lg cursor-pointer`}
                 variants={cardVariants}
+                onClick={() => handleHackathonClick(hack.title)}
               >
                 <div className="flex justify-between items-start mb-4">
                   <h3 className="text-xl font-bold text-white">{hack.title}</h3>

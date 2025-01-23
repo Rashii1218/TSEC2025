@@ -21,6 +21,18 @@ const teamSchema = new mongoose.Schema({
       }
     }
   ],
+  hackathonId: {
+    type: String,  
+    required: true
+  },
+  userId: {
+    type: String, 
+    required: true
+  },
+  isRegistered: {
+    type: Boolean,
+    default: false
+  },
   createdAt: {
     type: Date,
     default: Date.now
