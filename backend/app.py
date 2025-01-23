@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import LabelEncoder
+import yagmail
+import requests
 
 # Custom styling
 st.markdown("""
@@ -52,8 +54,22 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-def send_email(to_email, subject, message):
-    st.success(f"Email sent to {to_email} with subject: '{subject}' and message: '{message}'")
+def send_email_yagmail(recipient_email, recipient_name):
+    sender_email = "dcmaureenmiranda@gmail.com"  # Replace with your email
+    app_password = "jlej tfht ygjs zsrn"    # Replace with your App Password (Gmail/SMTP)
+
+    subject = "Request to join team"
+    body = f"Hi {recipient_name},\n\nI would like to join your team. Please let me know how I can contribute.\n\nBest Regards."
+
+    try:
+        # Initialize Yagmail
+        yag = yagmail.SMTP(sender_email, app_password)
+
+        # Send email
+        yag.send(to=recipient_email, subject=subject, contents=body)
+        print("Email sent successfully!")
+    except Exception as e:
+        print(f"Failed to send email: {e}")
 
 @st.cache_data
 def load_data(file_path):
@@ -109,7 +125,7 @@ tab1, tab2 = st.tabs(["🎯 Custom Search", "🎨 Personal Recommendations"])
 with tab1:
     st.markdown('<p class="section-header">Find Your Perfect Team</p>', unsafe_allow_html=True)
     
-    file_path = "data.xlsx"
+    file_path = "dataset.xlsx"
     data = load_data(file_path)
     
     if data is not None:
@@ -177,8 +193,11 @@ if st.session_state.recommendations is not None:
         </div>
         """, unsafe_allow_html=True)
         if st.button(f"📧 Connect with {student['Name']}", key=f"connect_{student['Name']}"):
-            send_email("dcmaureenmiranda@gmail.com", "Team Collaboration Request", 
-                      f"Hi {student['Name']}, would you like to collaborate with me?")
+            try:
+                send_email_yagmail('maureen.miranda.22@spit.ac.in', student['Name'])
+                st.success(f"📧 Email successfully sent to {student['Name']}!")
+            except Exception as e:
+                st.error(f"❌ Failed to send email: {e}")
 
 if st.session_state.hardcoded_recommendations is not None:
     st.markdown('<p class="section-header">✨ Personal Matches</p>', unsafe_allow_html=True)

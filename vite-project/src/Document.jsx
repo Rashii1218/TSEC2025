@@ -1,61 +1,67 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
-import { Bold, Italic, FileText, Type, ExternalLink } from 'lucide-react';
+import { useEditor, EditorContent } from '@tiptap/react';
+import Document from '@tiptap/extension-document';
+import Paragraph from '@tiptap/extension-paragraph';
+import Text from '@tiptap/extension-text';
+import Bold from '@tiptap/extension-bold';
+import Italic from '@tiptap/extension-italic';
+import Underline from '@tiptap/extension-underline';
+import BulletList from '@tiptap/extension-bullet-list';
+import ListItem from '@tiptap/extension-list-item';
+import TextAlign from '@tiptap/extension-text-align';
+import { Bold as BoldIcon, Italic as ItalicIcon, Underline as UnderlineIcon, List as ListIcon, AlignLeft, AlignCenter, AlignRight, ExternalLink } from 'lucide-react';
 
 const DocumentEditor = () => {
-  const [content, setContent] = useState('');
   const [socket, setSocket] = useState(null);
   const [connected, setConnected] = useState(false);
   const [fontSize, setFontSize] = useState('16px');
 
-  const tools = [
-    { 
-      name: 'Canva', 
-      url: 'https://www.canva.com', 
-      color: 'bg-[#00C4CC]',
-      description: 'Design beautiful graphics, presentations & social media content'
+  const editor = useEditor({
+    extensions: [
+      Document,
+      Paragraph,
+      Text,
+      Bold,
+      Italic,
+      Underline,
+      BulletList,
+      ListItem,
+      TextAlign.configure({
+        types: ['paragraph'],
+      }),
+    ],
+    content: '<p>Start typing...</p>',
+    onUpdate: ({ editor }) => {
+      // Emit changes to socket
+      socket?.emit('edit-document', 'doc1', { content: editor.getHTML() });
     },
-    { 
-      name: 'Figma', 
-      url: 'https://www.figma.com', 
-      color: 'bg-[#A259FF]',
-      description: 'Collaborative interface design tool for teams'
-    },
-    { 
-      name: 'Jamboard', 
-      url: 'https://jamboard.google.com', 
-      color: 'bg-[#F37C20]',
-      description: 'Digital whiteboard for real-time collaboration'
-    },
-    { 
-      name: 'Miro', 
-      url: 'https://miro.com', 
-      color: 'bg-[#FFD02F]',
-      description: 'Online whiteboard platform for visual collaboration'
-    },
-    { 
-      name: 'Notion', 
-      url: 'https://notion.so', 
-      color: 'bg-black',
-      description: 'All-in-one workspace for notes, docs & projects'
-    }
-  ];
+  });
 
   useEffect(() => {
     const socketInstance = io('http://localhost:4000', { withCredentials: true });
     setSocket(socketInstance);
     socketInstance.on('connect', () => setConnected(true));
     socketInstance.on('disconnect', () => setConnected(false));
-    socketInstance.on('document-updated', (document) => setContent(document.content));
+    socketInstance.on('document-updated', (document) => {
+      editor?.commands.setContent(document.content);
+    });
     socketInstance.emit('join-document', 'doc1');
-    return () => socketInstance.disconnect();
-  }, []);
 
-  const handleChange = (e) => {
-    const newContent = e.target.value;
-    setContent(newContent);
-    socket?.emit('edit-document', 'doc1', { content: newContent });
-  };
+    return () => socketInstance.disconnect();
+  }, [editor]);
+
+  const tools = [
+    { name: 'Canva', url: 'https://www.canva.com', color: 'bg-[#00C4CC]', description: 'Design beautiful graphics, presentations & social media content' },
+    { name: 'Figma', url: 'https://www.figma.com', color: 'bg-[#A259FF]', description: 'Collaborative interface design tool for teams' },
+    { name: 'Jamboard', url: 'https://jamboard.google.com', color: 'bg-[#F37C20]', description: 'Digital whiteboard for real-time collaboration' },
+    { name: 'Miro', url: 'https://miro.com', color: 'bg-[#FFD02F]', description: 'Online whiteboard platform for visual collaboration' },
+    { name: 'Notion', url: 'https://notion.so', color: 'bg-black', description: 'All-in-one workspace for notes, docs & projects' },
+  ];
+
+  if (!editor) {
+    return <div>Loading editor...</div>;
+  }
 
   return (
     <div className="flex min-h-screen">
@@ -93,8 +99,14 @@ const DocumentEditor = () => {
             </div>
 
             <div className="bg-gray-100 p-2 rounded-lg mb-4 flex items-center gap-2">
-              <select 
-                onChange={(e) => setFontSize(e.target.value)}
+              <select
+                onChange={(e) => {
+                  setFontSize(e.target.value);
+                  // Apply font size to editor content
+                  const element = editor.view.dom;
+                  element.style.fontSize = e.target.value;
+                }}
+                value={fontSize}
                 className="p-2 rounded border"
               >
                 <option value="14px">14px</option>
@@ -103,29 +115,73 @@ const DocumentEditor = () => {
                 <option value="20px">20px</option>
               </select>
 
-              <div className="flex gap-2 ml-4">
-                {['bold', 'italic'].map((style) => (
+              <div className="flex flex-wrap gap-2">
+                <div className="flex gap-1">
                   <button
-                    key={style}
-                    className="p-2 hover:bg-gray-200 rounded"
+                    onClick={() => editor.chain().focus().toggleBold().run()}
+                    disabled={!editor.can().chain().focus().toggleBold().run()}
+                    className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('bold') ? 'bg-gray-200' : ''}`}
                   >
-                    {style === 'bold' ? <Bold size={20} /> : <Italic size={20} />}
+                    <BoldIcon size={18} />
                   </button>
-                ))}
+                  <button
+                    onClick={() => editor.chain().focus().toggleItalic().run()}
+                    disabled={!editor.can().chain().focus().toggleItalic().run()}
+                    className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('italic') ? 'bg-gray-200' : ''}`}
+                  >
+                    <ItalicIcon size={18} />
+                  </button>
+                  <button
+                    onClick={() => editor.chain().focus().toggleUnderline().run()}
+                    disabled={!editor.can().chain().focus().toggleUnderline().run()}
+                    className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('underline') ? 'bg-gray-200' : ''}`}
+                  >
+                    <UnderlineIcon size={18} />
+                  </button>
+                </div>
+
+                <div className="w-px h-8 bg-gray-300 mx-2" />
+
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => editor.chain().focus().toggleBulletList().run()}
+                    className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('bulletList') ? 'bg-gray-200' : ''}`}
+                  >
+                    <ListIcon size={18} />
+                  </button>
+                </div>
+
+                <div className="w-px h-8 bg-gray-300 mx-2" />
+
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => editor.chain().focus().setTextAlign('left').run()}
+                    className={`p-2 rounded hover:bg-gray-200 ${editor.isActive({ textAlign: 'left' }) ? 'bg-gray-200' : ''}`}
+                  >
+                    <AlignLeft size={18} />
+                  </button>
+                  <button
+                    onClick={() => editor.chain().focus().setTextAlign('center').run()}
+                    className={`p-2 rounded hover:bg-gray-200 ${editor.isActive({ textAlign: 'center' }) ? 'bg-gray-200' : ''}`}
+                  >
+                    <AlignCenter size={18} />
+                  </button>
+                  <button
+                    onClick={() => editor.chain().focus().setTextAlign('right').run()}
+                    className={`p-2 rounded hover:bg-gray-200 ${editor.isActive({ textAlign: 'right' }) ? 'bg-gray-200' : ''}`}
+                  >
+                    <AlignRight size={18} />
+                  </button>
+                </div>
               </div>
             </div>
-            
-            <textarea
-              value={content}
-              onChange={handleChange}
-              style={{ fontSize }}
-              rows="15"
-              className="w-full p-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#6c1f93] focus:border-transparent outline-none resize-none transition-all duration-200 shadow-inner bg-gray-50 hover:bg-white"
-              placeholder="Start typing..."
-            />
-            
+
+            <div className="w-full p-4 border border-gray-200 rounded-lg focus-within:ring-2 focus-within:ring-[#6c1f93] focus-within:border-transparent outline-none transition-all duration-200 shadow-inner bg-gray-50 hover:bg-white min-h-[300px]">
+              <EditorContent editor={editor} />
+            </div>
+
             <div className="mt-4 text-sm text-gray-500 flex justify-between items-center">
-              <span>{content.length} characters</span>
+              <span>{editor.storage.characterCount?.characters() || 0} characters</span>
               <span className="text-[#ff5a05]">Changes save automatically</span>
             </div>
           </div>
