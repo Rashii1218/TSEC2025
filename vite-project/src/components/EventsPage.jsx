@@ -235,6 +235,24 @@ const EventsPage = () => {
       </div>
 
       {/* Modals/Forms */}
+      {iframeVisible && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl p-8 w-full max-w-4xl h-[80vh] relative">
+            <button 
+              onClick={() => setIframeVisible(false)}
+              className="absolute top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Close
+            </button>
+            <iframe 
+              src="http://localhost:8501"  // Assuming Streamlit app runs on default port
+              className="w-full h-full border-none rounded-xl"
+              title="Team Formation"
+            />
+          </div>
+        </div>
+      )}
+
       {registerFormVisible && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-slate-800 rounded-2xl p-8 w-full max-w-lg">
@@ -251,6 +269,7 @@ const EventsPage = () => {
                   required
                 />
               </div>
+
 
               {teamMembers.map((member, index) => (
                 <div key={index} className="space-y-2">

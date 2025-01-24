@@ -80,14 +80,14 @@ import TeamListPage from './TeamListPage';
 import Profile from "./UserProfile/Profile";
 import TeamForm from "./version/ver_detail";
 import StudentProfile from "./profile/Profile";
-import TeamList from "./organizer/TeamsList";
+import Form from "./components/Form";import TeamList from "./organizer/TeamsList";
 import TeamDetails from "./TimeSchedule";
 import ODashboard from "./organizer/ODashboard";
 import Leaderboard from "./LeaderBoard";
 import CommitHistory from "./Version";
 import Sub from "./Submission";
 import ZapierChatbot from './Chatbot';
-
+import Projects from "./components/Projects";
 
 const App = () => {
   return (
@@ -117,6 +117,8 @@ const App = () => {
         <Route path="/track" element={<CommitHistory owner="Rashii1218" repo="TsecRubix25" />} />
         <Route path="/ver" element={<TeamForm/>} />
         <Route path="/sub" element={<Sub />} />
+        <Route path="/form" element={<Form />} />
+        <Route path="/projects" element={<Projects />} />
         <Route path="/chatbot" element={<ZapierChatbot />} />
       </Routes>
     </Router>
