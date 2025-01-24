@@ -13,6 +13,7 @@ const LiveForum = () => {
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
             <ChatRoom />
+            <ScheduledMeetings />
             <PDFQuestionAnswer />
           </div>
           <div>
@@ -133,80 +134,6 @@ const PDFQuestionAnswer = () => {
 //   );
 // };
 
-
-// import { useState, useEffect } from 'react';
-
-// const ScheduledMeetings = () => {
-//   const [teams, setTeams] = useState([]);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     const hackathonId = localStorage.getItem('hackathonId'); // Get hackathonId from localStorage
-
-//     if (!hackathonId) {
-//       console.error('Hackathon ID not found in localStorage');
-//       return;
-//     }
-
-//     const fetchTeams = async () => {
-//       try {
-//         const response = await fetch(`/api/teams?hackathonId=${hackathonId}`);
-//         const data = await response.json();
-        
-//         if (response.ok) {
-//           setTeams(data);
-//         } else {
-//           console.error('Error fetching teams:', data.message);
-//         }
-//       } catch (error) {
-//         console.error('Error fetching teams:', error);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchTeams();
-//   }, []);
-
-//   if (loading) {
-//     return <p>Loading...</p>;
-//   }
-
-//   return (
-//     <div className="p-4">
-//       <h3 className="text-xl font-bold mb-4">Scheduled Meetings</h3>
-//       {teams.length === 0 ? (
-//         <p>No teams found for this hackathon.</p>
-//       ) : (
-//         teams.map((team, index) => (
-//           <div key={index} className="bg-blue-50 p-4 rounded-xl mb-4 hover:bg-blue-100 transition">
-//             <div className="flex items-center justify-between">
-//               <div>
-//                 <h4 className="text-lg font-semibold">{team.teamName}</h4>
-//                 <div className="flex items-center mb-2">
-//                   <span className="font-semibold text-navy-700">{team.assignedMentor?.name || 'No mentor assigned'}</span>
-//                 </div>
-//                 <p className="text-gray-500 text-xs mt-1">
-//                   {team.scheduleTime ? new Date(team.scheduleTime).toLocaleString() : 'No schedule set'}
-//                 </p>
-//               </div>
-//               {team.meetLink && (
-//                 <a
-//                   href={team.meetLink}
-//                   target="_blank"
-//                   rel="noopener noreferrer"
-//                   className="bg-gradient-to-r from-navy-600 to-red-500 text-white px-4 py-2 rounded-xl hover:opacity-90 transition flex items-center"
-//                 >
-//                   Join Meeting
-//                 </a>
-//               )}
-//             </div>
-//           </div>
-//         ))
-//       )}
-//     </div>
-//   );
-// };
 
 
 

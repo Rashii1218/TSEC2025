@@ -742,20 +742,11 @@ const PDFQuestionAnswer = () => {
 
 const ScheduledMeetings = () => {
   const [meetings, setMeetings] = useState([
+
     {
-      id: 1,
-      mentor: "John Smith",
-      topic: "Advanced React Development",
-      date: "2024-02-15",
-      time: "14:30",
-      meetLink: "https://meet.google.com/def-nvfy-exc",
-    },
-    {
-      id: 2,
-      mentor: "Emily Chen",
-      topic: "Strategic Tech Career Growth",
-      date: "2024-02-20",
-      time: "16:00",
+      mentor: "Rashi",
+      date: "2024-01-25",
+      time: "14:15",
       meetLink: "https://meet.google.com/abc-xyz-123",
     },
   ]);

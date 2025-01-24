@@ -580,30 +580,31 @@ app.patch('/api/teams/:teamName/mentor', async (req, res) => {
 });
 
 app.get('/api/teams', async (req, res) => {
-  const hackathonId = req.query.hackathonId;  // Retrieve hackathonId from query params
-
-  if (!hackathonId) {
-    return res.status(400).json({ message: 'Hackathon ID is required' });
-  }
-
   try {
-    // Find teams based on the hackathonId
-    const teams = await Team.find({ hackathonId });
+    const { hasSchedule, limit } = req.query;
     
-    if (!teams.length) {
-      return res.status(404).json({ message: 'No teams found for this hackathon' });
+    let query = {};
+    
+    // Filter for teams with scheduled meetings if hasSchedule is true
+    if (hasSchedule === 'true') {
+      query.scheduleTime = { $ne: null };
     }
-
-    const teamsData = teams.map((team) => ({
-      teamName: team.teamName,
-      assignedMentor: team.assignedMentor,
-      meetLink: team.meetLink,
-    }));
-
-    res.json(teamsData);
-  } catch (error) {
-    console.error('Error fetching team data:', error);
-    res.status(500).json({ message: 'Server error' });
+    
+    // Fetch teams with optional limit
+    const teams = await Team.find(query)
+      .limit(limit ? parseInt(limit) : 0)
+      .sort({ scheduleTime: 1 });
+    
+    res.status(200).json({ 
+      teams,
+      count: teams.length
+    });
+  } catch (err) {
+    console.error('Error fetching teams:', err);
+    res.status(500).json({ 
+      message: 'Server error', 
+      error: err.message 
+    });
   }
 });
 
