@@ -41,6 +41,11 @@ const teamSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  assignedMentor: {
+      name: String,
+      email: String
+    },
+    scheduleTime: Date
 });
 
 module.exports = mongoose.model('Team', teamSchema);

@@ -77,8 +77,8 @@ import DocumentEditor from './Document';
 import LiveForum from "./components/Mentor";
 import JudgeDashboard from './JudgeDashboard';
 import TeamListPage from './TeamListPage';
-
-import TeamForm from "./team/Register";
+import Profile from './UserProfile/Profile';
+import TeamForm from "./version/ver_detail";
 import StudentProfile from "./profile/Profile";
 
 
@@ -86,6 +86,7 @@ import TeamDetails from "./TimeSchedule";
 import ODashboard from "./organizer/ODashboard";
 import Leaderboard from "./LeaderBoard";
 import CommitHistory from "./Version";
+import TeamList from "./organizer/TeamsList";
 
 
 const App = () => {
@@ -102,7 +103,7 @@ const App = () => {
         <Route path="/judgedashboard" element={<JudgeDashboard />} />
         <Route path="/teams" element={<TeamListPage />} />
         <Route path="/mentor" element={<LiveForum />} />
-        
+        <Route path="/teamlists" element={<TeamList/>} />
         <Route path="*" element={<Navigate to="/" />} />
         <Route path="/register" element={<TeamForm />} />
         <Route path="/profile" element={<StudentProfile/>} />
@@ -114,6 +115,7 @@ const App = () => {
         <Route path="/event" element={<EventsPage />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/track" element={<CommitHistory owner="Rashii1218" repo="TsecRubix25" />} />
+        <Route path="/ver" element={<TeamForm/>} />
       </Routes>
     </Router>
   );

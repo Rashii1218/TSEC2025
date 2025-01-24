@@ -8,6 +8,9 @@ const CommitHistory = ({ owner, repo }) => {
     const fetchProjectData = async () => {
       try {
         const response = await axios.get(`http://localhost:3000/api/project-data`, {
+          headers: {
+            'Authorization': `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`,
+          },
           params: { owner, repo },
         });
         setProjectData(response.data);
@@ -15,9 +18,25 @@ const CommitHistory = ({ owner, repo }) => {
         console.error('Error fetching project data:', error);
       }
     };
-
     fetchProjectData();
   }, [owner, repo]);
+
+  const checkRateLimit = async () => {
+    try {
+      const response = await axios.get('https://api.github.com/rate_limit', {
+        headers: {
+          'Authorization': `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`,
+        },
+      });
+
+      
+  
+      const resetTime = new Date(response.data.resources.core.reset * 1000); // Convert from seconds to milliseconds
+      console.log(`Rate limit will reset at: ${resetTime.toLocaleString()}`);
+    } catch (error) {
+      console.error('Error fetching rate limit status:', error);
+    }
+  };
 
   if (!projectData) {
     return <div>Loading...</div>;

@@ -17,6 +17,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const kmeans = require('node-kmeans');
 const axios = require('axios');
+const Version = require('./models/Version');
 
 // Middleware configurations
 // app.use(cors({
@@ -27,7 +28,7 @@ const axios = require('axios');
 
 app.use(cors({
   origin: ['http://localhost:5173', 'http://localhost:3000'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH','OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true // Add this if credentials are being used
 }));
@@ -197,6 +198,8 @@ app.get('/api/hackathons/past', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+
 
 // Endpoint to save feedback
 app.post('/api/teams/feedback', async (req, res) => {
@@ -399,7 +402,7 @@ app.get('/api/leaderboard/:hackathonTitle', async (req, res) => {
     res.status(500).json({ message: 'Error generating leaderboard' });
   }
 });
-const GITHUB_TOKEN = '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'; // Optional for private repos
+const GITHUB_TOKEN = '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'; // Optional for private repos
 
 app.get('/api/commits', async (req, res) => {
   const { owner, repo } = req.query; // Extract owner and repo from the query params
@@ -452,6 +455,78 @@ app.get('/api/project-data', async (req, res) => {
   } catch (error) {
     console.error('Error fetching project data:', error.response ? error.response.data : error.message);
     res.status(500).send('Error fetching project data');
+  }
+});
+
+app.post('/api/ver', async (req, res) => {
+  const { hackname, teamName, gitUrl } = req.body;
+
+  if (!hackname || !teamName || !gitUrl) {
+    return res.status(400).json({ message: 'All fields (hackname, teamName, gitUrl) are required.' });
+  }
+
+  try {
+    // Create a new Team instance and save it to the database
+    const newTeam = new Version({ hackname, teamName, gitUrl });
+    await newTeam.save();
+
+    res.status(201).json({ message: 'Form submitted successfully!', team: newTeam });
+  } catch (error) {
+    console.error('Error saving team data:', error);
+    res.status(500).json({ message: 'Error submitting form. Please try again.' });
+  }
+});
+
+app.post('/api/events/addMentor', async (req, res) => {
+  const { eventId, mentor } = req.body;
+
+  try {
+    // Find the hackathon and update its mentors array
+    const updatedHackathon = await Hackathon.findByIdAndUpdate(
+      eventId,
+      { $push: { mentors: mentor } },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedHackathon) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    res.status(200).json({ 
+      message: 'Mentor added successfully', 
+      mentor: mentor 
+    });
+  } catch (error) {
+    console.error('Error adding mentor:', error);
+    res.status(500).json({ message: 'Error adding mentor', error: error.message });
+  }
+});
+
+app.patch('/api/teams/:teamName/mentor', async (req, res) => {
+  const { teamName } = req.params;  // Using teamName instead of teamId
+  const { mentorName, mentorEmail, scheduleTime } = req.body;
+
+  console.log('Received teamName:', teamName);
+
+  try {
+    // Find team by teamName instead of teamId
+    const team = await Team.findOne({ teamName: teamName });
+    if (!team) {
+      return res.status(404).json({ message: 'Team not found' });
+    }
+
+    // Proceed with your mentor assignment logic
+    team.assignedMentor = {
+      name: mentorName,
+      email: mentorEmail
+    };
+    team.scheduleTime = scheduleTime;
+
+    await team.save();
+    res.status(200).json(team);
+  } catch (err) {
+    console.error('Error in mentor assignment:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 

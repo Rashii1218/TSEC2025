@@ -26,9 +26,14 @@ import {
     LayoutDashboard,
     CalendarPlus,Award
   } from 'lucide-react';
+  import axios from "axios";
+  import { useNavigate } from "react-router-dom";
+  
 
 const ODashboard = () => {
   const [activeSection, setActiveSection] = useState('events');
+  const navigate = useNavigate();
+  
 
   const handleLogout = () => {
     console.log("User logged out");
@@ -111,32 +116,67 @@ const NavItem = ({ icon, label, active, onClick }) => (
   </div>
 );
 
-const PastEventsSection = () => {
-    const [events, setEvents] = useState([]);
+// const PastEventsSection = () => {
+//     const [events, setEvents] = useState([]);
   
-    // Fetch events when component mounts
-    useEffect(() => {
-      const fetchEvents = async () => {
-        try {
-          const response = await fetch('http://localhost:3000/api/hackathons');
-          const data = await response.json();
-          setEvents(data);
-        } catch (error) {
-          console.error('Error fetching events:', error);
-        }
-      };
+//     // Fetch events when component mounts
+//     useEffect(() => {
+//       const fetchEvents = async () => {
+//         try {
+//           const response = await fetch('http://localhost:3000/api/hackathons');
+//           const data = await response.json();
+//           setEvents(data);
+//         } catch (error) {
+//           console.error('Error fetching events:', error);
+//         }
+//       };
   
-      fetchEvents();
-    }, []);
+//       fetchEvents();
+//     }, []);
+
+
+const PastEventsSection=()=>{
+  const [upcoming, setUpcoming] = useState([]);
+  const [past, setPast] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+
+  useEffect(() => {
+    const fetchHacks = async () => {
+      try {
+        const upcomingRes = await axios.get("http://localhost:3000/api/hackathons/upcoming");
+        const pastRes = await axios.get("http://localhost:3000/api/hackathons/past");
+        setUpcoming(upcomingRes.data || []);
+        setPast(pastRes.data || []);
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to fetch hackathon data.");
+        setLoading(false);
+      }
+    };
+    fetchHacks();
+  }, []);
+   
   
     return (
       <div>
-        <h2 className="text-2xl font-bold mb-6">Past Created Events</h2>
+        <h2 className="text-2xl font-bold mb-6">Upcoming Events</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {events.length === 0 ? (
+          {upcoming.length === 0 ? (
             <p>No events found.</p>
           ) : (
-            events.map((event) => (
+            upcoming.map((event) => (
+              <EventCard key={event._id} event={event} />
+            ))
+          )}
+        </div>
+        <h2 className="text-2xl font-bold mb-6">Past Created Events</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {past.length === 0 ? (
+            <p>No events found.</p>
+          ) : (
+            past.map((event) => (
               <EventCard key={event._id} event={event} />
             ))
           )}
@@ -146,18 +186,136 @@ const PastEventsSection = () => {
   };
   
   
+  // const EventCard = ({ event }) => {
+  //   const navigate = useNavigate();
+  
+  //   const handleNavigate = (hackathonTitle) => {
+  //     // Store the hackathon title in localStorage
+  //     localStorage.setItem('selectedHackathon', hackathonTitle);
+  
+  //     // Navigate to the teams page
+  //     navigate(`/teamlists?hackathon=${encodeURIComponent(hackathonTitle)}`);
+  //   };
+  
+  
+  //   return (
+  //     <div className="bg-white p-4 rounded-lg shadow-md">
+  //       <h3 className="font-bold text-lg mb-2">{event.title}</h3>
+  //       <p>Date: {event.date}</p>
+  //       <p>Participants: {event.participants}</p>
+  //       <button
+  //         className="mt-3 bg-blue-500 text-white px-4 py-2 rounded"
+  //         onClick={() => handleNavigate(event.title)}
+  //       >
+  //         View Details
+  //       </button>
+  //     </div>
+  //   );
+  // };
+  
+  const EventCard = ({ event }) => {
+    const [showMentorForm, setShowMentorForm] = useState(false);
+    const [mentorName, setMentorName] = useState('');
+    const [mentorEmail, setMentorEmail] = useState('');
+    const [mentors, setMentors] = useState(event.mentors || []);
+    const navigate = useNavigate();
+    
+  
+    const handleAddMentor = async () => {
+      // Validate input
+      if (!mentorName.trim() || !mentorEmail.trim()) {
+        alert('Please enter both mentor name and email');
+        return;
+      }
+  
+      try {
+        // Make API call to add mentor to the specific event
+        const response = await axios.post('http://localhost:3000/api/events/addMentor', {
+          eventId: event._id,
+          mentor: {
+            name: mentorName,
+            email: mentorEmail
+          }
+        });
+  
+        // Update local state with the new mentor
+        const newMentor = response.data.mentor;
+        setMentors([...mentors, newMentor]);
+  
+        // Reset form
+        setMentorName('');
+        setMentorEmail('');
+        setShowMentorForm(false);
+      } catch (error) {
+        console.error('Error adding mentor:', error);
+        alert('Failed to add mentor. Please try again.');
+      }
+    };
+  
+    const handleNavigate = (hackathonTitle) => {
+      localStorage.setItem('selectedHackathon', hackathonTitle);
+      navigate(`/teamlists?hackathon=${encodeURIComponent(hackathonTitle)}`);
+    };
+  
+    return (
+      <div className="bg-white p-4 rounded-lg shadow-md">
+        <h3 className="font-bold text-lg mb-2">{event.title}</h3>
+        <p>Date: {event.date}</p>
+        <p>Participants: {event.participants}</p>
+        <button
+          className="mt-3 bg-blue-500 text-white px-4 py-2 rounded"
+          onClick={() => handleNavigate(event.title)}
+        >
+          View Details
+        </button>
+  
+        <h4 className="font-semibold mt-3">Mentors:</h4>
+        <ul>
+          {mentors.length > 0 ? (
+            mentors.map((mentor, index) => (
+              <li key={index}>{mentor.name} - {mentor.email}</li>
+            ))
+          ) : (
+            <p>No mentors added yet.</p>
+          )}
+        </ul>
+  
+        <button
+          className="mt-3 bg-blue-500 text-white px-4 py-2 rounded"
+          onClick={() => setShowMentorForm(!showMentorForm)}
+        >
+          {showMentorForm ? 'Cancel' : 'Add Mentor'}
+        </button>
+  
+        {showMentorForm && (
+          <div className="mt-4">
+            <input
+              type="text"
+              placeholder="Mentor Name"
+              className="border p-2 rounded w-full mb-2"
+              value={mentorName}
+              onChange={(e) => setMentorName(e.target.value)}
+            />
+            <input
+              type="email"
+              placeholder="Mentor Email"
+              className="border p-2 rounded w-full mb-2"
+              value={mentorEmail}
+              onChange={(e) => setMentorEmail(e.target.value)}
+            />
+            <button
+              className="bg-green-500 text-white px-4 py-2 rounded"
+              onClick={handleAddMentor}
+            >
+              Save Mentor
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
   
 
-  const EventCard = ({ event }) => (
-    <div className="bg-white p-4 rounded-lg shadow-md">
-      <h3 className="font-bold text-lg mb-2">{event.title}</h3>
-      <p>Date: {event.date}</p>
-      <p>Participants: {event.participants}</p>
-      <button className="mt-3 bg-blue-500 text-white px-4 py-2 rounded">
-        View Details
-      </button>
-    </div>
-  );
 
 const CreateEventSection = () => {
     const [eventData, setEventData] = useState({

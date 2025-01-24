@@ -95,7 +95,7 @@ const LandingPage = () => {
             {upcoming.map((hack) => (
               <motion.div
                 key={hack.title}
-                onClick={() => handleEventClick(hack.title)} // Add click handler
+                onClick={() => handleEventClick(hack.title)} 
                 className="cursor-pointer bg-gradient-to-br from-[#e7c6ff] to-[#c8b6ff] rounded-2xl p-8 border border-[#c8b6ff] shadow-lg transition-transform duration-300 hover:shadow-xl hover:scale-105"
                 variants={cardVariants}
                 // onClick={() => handleHackathonClick(hack.title)}
