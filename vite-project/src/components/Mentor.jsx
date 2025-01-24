@@ -1,22 +1,35 @@
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
-import { Send, Users, MessageCircle, Video, Clock, Calendar, FileText, HelpCircle } from 'lucide-react';
+import {
+  Send,
+  Users,
+  MessageCircle,
+  Video,
+  Clock,
+  Calendar,
+  FileText,
+  HelpCircle,
+} from "lucide-react";
 
 const LiveForum = () => {
   return (
     <div className="min-h-screen bg-blue-50 p-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-bold text-center text-blue-900 mb-12">
           Mentor Support & Q&A Forum
         </h1>
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
+        <div className="grid lg:grid-cols-3 gap-20">
+          {/* Left Column */}
+          <div className="lg:col-span-2 space-y-10">
             <ChatRoom />
             <ScheduledMeetings />
             <PDFQuestionAnswer />
           </div>
-          <div>
+
+          {/* Right Column */}
+          <div className="space-y-10">
             <FAQs />
+            <AdditionalInfoCard />
           </div>
         </div>
       </div>
@@ -24,26 +37,71 @@ const LiveForum = () => {
   );
 };
 
+// Additional Info Card Component
+const AdditionalInfoCard = () => {
+  return (
+    <div className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
+      <div className="bg-blue-900 p-4">
+        <h2 className="text-2xl font-semibold text-white text-center">
+          Mentor Mentee Connect
+        </h2>
+      </div>
+      <div className="p-6">
+        <p className="text-blue-700 mb-4">
+          Get appropriate time slot for mentor mentee connect
+        </p>
+        <a
+          href="http://localhost:8501/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block bg-blue-800 text-white py-3 px-6 text-center rounded-xl hover:bg-blue-700 transition duration-300"
+        >
+          Get Timeslot
+        </a>
+      </div>
+    </div>
+  );
+};
+
 const FAQs = () => {
   const faqs = [
-    { question: "How do I schedule a session?", answer: "Navigate to the schedule section and select an available time slot." },
-    { question: "What topics can I discuss?", answer: "We cover a wide range of professional topics including career development, technical skills, and industry insights." },
-    { question: "Session interruption policy?", answer: "While you can leave a session, we recommend communicating with your mentor beforehand." },
-    { question: "Are sessions confidential?", answer: "Yes, all sessions are private and not recorded without explicit consent." },
-    { question: "Mentor communication methods?", answer: "Use our live chatroom or schedule a dedicated meeting." },
+    {
+      question: "How do I schedule a session?",
+      answer:
+        "Navigate to the schedule section and select an available time slot.",
+    },
+    {
+      question: "What topics can I discuss?",
+      answer:
+        "We cover a wide range of professional topics including career development, technical skills, and industry insights.",
+    },
+    {
+      question: "Session interruption policy?",
+      answer:
+        "While you can leave a session, we recommend communicating with your mentor beforehand.",
+    },
+    {
+      question: "Are sessions confidential?",
+      answer:
+        "Yes, all sessions are private and not recorded without explicit consent.",
+    },
+    {
+      question: "Mentor communication methods?",
+      answer: "Use our live chatroom or schedule a dedicated meeting.",
+    },
   ];
 
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
-      <div className="bg-red-700 p-4">
+      <div className="bg-blue-900 p-4">
         <h2 className="text-2xl font-semibold text-white text-center flex items-center justify-center">
           <HelpCircle className="mr-3" /> Frequently Asked Questions
         </h2>
       </div>
       <div className="p-6">
         {faqs.map((faq, index) => (
-          <div 
-            key={index} 
+          <div
+            key={index}
             className="mb-4 pb-4 border-b border-blue-100 last:border-b-0 hover:bg-blue-50 transition duration-300 rounded-lg p-3"
           >
             <p className="font-semibold text-blue-800 mb-2">{faq.question}</p>
@@ -58,19 +116,18 @@ const FAQs = () => {
 const PDFQuestionAnswer = () => {
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
-      <div className="bg-red-700 p-4">
+      <div className="bg-blue-900 p-4">
         <h2 className="text-2xl font-semibold text-white text-center flex items-center justify-center">
           <FileText className="mr-3" /> PDF Document Q&A
         </h2>
       </div>
       <div className="p-6">
-        <iframe 
-          src="http://localhost:8502" 
-          width="100%" 
-          height="600px" 
+        <iframe
+          src="http://localhost:8502"
+          width="100%"
+          height="600px"
           className="border border-blue-200 rounded-xl"
-        >
-        </iframe>
+        ></iframe>
       </div>
     </div>
   );
@@ -84,7 +141,7 @@ const ScheduledMeetings = () => {
       topic: "Advanced React Development",
       date: "2024-02-15",
       time: "14:30",
-      meetLink: "https://meet.google.com/def-nvfy-exc"
+      meetLink: "https://meet.google.com/def-nvfy-exc",
     },
     {
       id: 2,
@@ -92,8 +149,8 @@ const ScheduledMeetings = () => {
       topic: "Strategic Tech Career Growth",
       date: "2024-02-20",
       time: "16:00",
-      meetLink: "https://meet.google.com/abc-xyz-123"
-    }
+      meetLink: "https://meet.google.com/abc-xyz-123",
+    },
   ]);
 
   const joinMeeting = (meetLink) => {
@@ -102,21 +159,23 @@ const ScheduledMeetings = () => {
 
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
-      <div className="bg-red-700 p-4">
+      <div className="bg-blue-900 p-4">
         <h2 className="text-2xl font-semibold text-white text-center flex items-center justify-center">
           <Calendar className="mr-3" /> Upcoming Meetings
         </h2>
       </div>
       <div className="p-6 space-y-4">
         {meetings.map((meeting) => (
-          <div 
-            key={meeting.id} 
+          <div
+            key={meeting.id}
             className="bg-blue-50 p-4 rounded-xl flex items-center justify-between hover:bg-blue-100 transition duration-300 border border-blue-100"
           >
             <div>
               <div className="flex items-center mb-2">
                 <Clock className="mr-2 text-blue-700" size={20} />
-                <span className="font-semibold text-blue-800">{meeting.mentor}</span>
+                <span className="font-semibold text-blue-800">
+                  {meeting.mentor}
+                </span>
               </div>
               <p className="text-blue-700 text-sm">{meeting.topic}</p>
               <p className="text-blue-600 text-xs mt-1">
@@ -125,7 +184,7 @@ const ScheduledMeetings = () => {
             </div>
             <button
               onClick={() => joinMeeting(meeting.meetLink)}
-              className="bg-red-700 text-white px-4 py-2 rounded-xl hover:bg-red-600 transition duration-300 flex items-center"
+              className="bg-blue-800 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition duration-300 flex items-center"
             >
               <Video className="mr-2" /> Join Meeting
             </button>
@@ -172,7 +231,7 @@ const ChatRoom = () => {
 
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
-      <div className="bg-red-700 p-4">
+      <div className="bg-blue-900 p-4">
         <h2 className="text-2xl font-semibold text-white text-center flex items-center justify-center">
           <Users className="mr-3" /> Professional Chat Room
         </h2>
@@ -182,14 +241,14 @@ const ChatRoom = () => {
           <form onSubmit={joinChat} className="space-y-4">
             <input
               type="text"
-              className="w-full px-4 py-3 border border-blue-200 rounded-xl focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none"
+              className="w-full px-4 py-3 border border-blue-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
               placeholder="Enter your professional username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
             <button
               type="submit"
-              className="w-full bg-red-700 text-white py-3 rounded-xl hover:bg-red-600 transition duration-300"
+              className="w-full bg-blue-800 text-white py-3 rounded-xl hover:bg-blue-700 transition duration-300"
             >
               Join Chat
             </button>
@@ -198,8 +257,8 @@ const ChatRoom = () => {
           <div className="flex flex-col h-[600px]">
             <div className="flex-grow overflow-y-auto border border-blue-100 rounded-xl p-4 mb-4 space-y-3">
               {messages.map((msg, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="bg-blue-50 p-3 rounded-lg border border-blue-100"
                 >
                   <strong className="text-blue-800 mr-2">{msg.username}:</strong>
@@ -210,14 +269,14 @@ const ChatRoom = () => {
             <form onSubmit={sendMessage} className="flex space-x-2">
               <input
                 type="text"
-                className="flex-grow px-4 py-3 border border-blue-200 rounded-xl focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none"
+                className="flex-grow px-4 py-3 border border-blue-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
                 placeholder="Type a professional message"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
               />
               <button
                 type="submit"
-                className="bg-red-700 text-white p-3 rounded-xl hover:bg-red-600 transition duration-300"
+                className="bg-blue-800 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition duration-300"
               >
                 <Send />
               </button>

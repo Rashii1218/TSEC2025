@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 import { Send, Users, MessageCircle, Video, Clock, Calendar, FileText } from 'lucide-react';
+import axios from "axios";
 
 const LiveForum = () => {
   return (
@@ -12,7 +13,6 @@ const LiveForum = () => {
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
             <ChatRoom />
-            <ScheduledMeetings />
             <PDFQuestionAnswer />
           </div>
           <div>
@@ -76,65 +76,142 @@ const PDFQuestionAnswer = () => {
   );
 };
 
-const ScheduledMeetings = () => {
-  const [meetings, setMeetings] = useState([
-    {
-      id: 1,
-      mentor: "John Smith",
-      topic: "React Advanced Techniques",
-      date: "2024-02-15",
-      time: "14:30",
-      meetLink: "https://meet.google.com/def-nvfy-exc"
-    },
-    {
-      id: 2,
-      mentor: "Emily Chen",
-      topic: "Career Growth in Tech",
-      date: "2024-02-20",
-      time: "16:00",
-      meetLink: "https://meet.google.com/abc-xyz-123"
-    }
-  ]);
+// const ScheduledMeetings = () => {
+//   const [meetings, setMeetings] = useState([
+//     {
+//       id: 1,
+//       mentor: "John Smith",
+//       date: "2024-02-15",
+//       time: "14:30",
+//       meetLink: "https://meet.google.com/def-nvfy-exc"
+//     },
+//     {
+//       id: 2,
+//       mentor: "Emily Chen",
+//       date: "2024-02-20",
+//       time: "16:00",
+//       meetLink: "https://meet.google.com/abc-xyz-123"
+//     }
+//   ]);
 
-  const joinMeeting = (meetLink) => {
-    window.location.href = meetLink;
-  };
+//   const joinMeeting = (meetLink) => {
+//     window.location.href = meetLink;
+//   };
 
-  return (
-    <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-      <div className="bg-gradient-to-r from-navy-600 to-red-500 p-4">
-        <h2 className="text-2xl font-bold text-white text-center flex items-center justify-center">
-          <Calendar className="mr-3" /> Scheduled Meetings
-        </h2>
-      </div>
-      <div className="p-6 space-y-4">
-        {meetings.map((meeting) => (
-          <div 
-            key={meeting.id} 
-            className="bg-blue-50 p-4 rounded-xl flex items-center justify-between hover:bg-blue-100 transition"
-          >
-            <div>
-              <div className="flex items-center mb-2">
-                <Clock className="mr-2 text-navy-600" size={20} />
-                <span className="font-semibold text-navy-700">{meeting.mentor}</span>
-              </div>
-              <p className="text-gray-600 text-sm">{meeting.topic}</p>
-              <p className="text-gray-500 text-xs mt-1">
-                {meeting.date} at {meeting.time}
-              </p>
-            </div>
-            <button
-              onClick={() => joinMeeting(meeting.meetLink)}
-              className="bg-gradient-to-r from-navy-600 to-red-500 text-white px-4 py-2 rounded-xl hover:opacity-90 transition flex items-center"
-            >
-              <Video className="mr-2" /> Join
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
+//   return (
+//     <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+//       <div className="bg-gradient-to-r from-navy-600 to-red-500 p-4">
+//         <h2 className="text-2xl font-bold text-white text-center flex items-center justify-center">
+//           <Calendar className="mr-3" /> Scheduled Meetings
+//         </h2>
+//       </div>
+//       <div className="p-6 space-y-4">
+//         {meetings.map((meeting) => (
+//           <div 
+//             key={meeting.id} 
+//             className="bg-blue-50 p-4 rounded-xl flex items-center justify-between hover:bg-blue-100 transition"
+//           >
+//             <div>
+//               <div className="flex items-center mb-2">
+//                 <Clock className="mr-2 text-navy-600" size={20} />
+//                 <span className="font-semibold text-navy-700">{meeting.mentor}</span>
+//               </div>
+//               <p className="text-gray-500 text-xs mt-1">
+//                 {meeting.date} at {meeting.time}
+//               </p>
+//             </div>
+//             <button
+//               onClick={() => joinMeeting(meeting.meetLink)}
+//               className="bg-gradient-to-r from-navy-600 to-red-500 text-white px-4 py-2 rounded-xl hover:opacity-90 transition flex items-center"
+//             >
+//               <Video className="mr-2" /> Join
+//             </button>
+//           </div>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// };
+
+
+// import { useState, useEffect } from 'react';
+
+// const ScheduledMeetings = () => {
+//   const [teams, setTeams] = useState([]);
+//   const [loading, setLoading] = useState(true);
+
+//   useEffect(() => {
+//     const hackathonId = localStorage.getItem('hackathonId'); // Get hackathonId from localStorage
+
+//     if (!hackathonId) {
+//       console.error('Hackathon ID not found in localStorage');
+//       return;
+//     }
+
+//     const fetchTeams = async () => {
+//       try {
+//         const response = await fetch(`/api/teams?hackathonId=${hackathonId}`);
+//         const data = await response.json();
+        
+//         if (response.ok) {
+//           setTeams(data);
+//         } else {
+//           console.error('Error fetching teams:', data.message);
+//         }
+//       } catch (error) {
+//         console.error('Error fetching teams:', error);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchTeams();
+//   }, []);
+
+//   if (loading) {
+//     return <p>Loading...</p>;
+//   }
+
+//   return (
+//     <div className="p-4">
+//       <h3 className="text-xl font-bold mb-4">Scheduled Meetings</h3>
+//       {teams.length === 0 ? (
+//         <p>No teams found for this hackathon.</p>
+//       ) : (
+//         teams.map((team, index) => (
+//           <div key={index} className="bg-blue-50 p-4 rounded-xl mb-4 hover:bg-blue-100 transition">
+//             <div className="flex items-center justify-between">
+//               <div>
+//                 <h4 className="text-lg font-semibold">{team.teamName}</h4>
+//                 <div className="flex items-center mb-2">
+//                   <span className="font-semibold text-navy-700">{team.assignedMentor?.name || 'No mentor assigned'}</span>
+//                 </div>
+//                 <p className="text-gray-500 text-xs mt-1">
+//                   {team.scheduleTime ? new Date(team.scheduleTime).toLocaleString() : 'No schedule set'}
+//                 </p>
+//               </div>
+//               {team.meetLink && (
+//                 <a
+//                   href={team.meetLink}
+//                   target="_blank"
+//                   rel="noopener noreferrer"
+//                   className="bg-gradient-to-r from-navy-600 to-red-500 text-white px-4 py-2 rounded-xl hover:opacity-90 transition flex items-center"
+//                 >
+//                   Join Meeting
+//                 </a>
+//               )}
+//             </div>
+//           </div>
+//         ))
+//       )}
+//     </div>
+//   );
+// };
+
+
+
+
+
 
 const ChatRoom = () => {
   const [messages, setMessages] = useState([]);
