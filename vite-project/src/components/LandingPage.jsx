@@ -585,6 +585,16 @@ const LandingPage = () => {
       <NavBar />
       <div className="max-w-7xl mx-auto px-4 py-16">
         {/* Upcoming Events Section */}
+        <motion.div className="text-center mb-16" variants={fadeInVariants}>
+          <h1 className="text-6xl font-extrabold text-[#03045e] drop-shadow-lg transform transition-transform duration-300 hover:scale-105"
+              style={{
+                textShadow: "2px 2px 0 rgba(255, 105, 180, 0.7), 4px 4px 0 rgba(255, 105, 180, 0.5)"
+              }}>
+            Build. Compete. Innovate.
+          </h1>
+          <p className="text-[#333333] text-xl font-semibold max-w-2xl mx-auto">Join virtual hackathons and showcase your skills.</p>
+        </motion.div>
+        <motion.div className="mb-16" variants={containerVariants}></motion.div>
         <motion.div className="mb-16" variants={containerVariants}>
           <h2 className="text-4xl font-bold text-[#333333] mb-8 flex items-center">
             <Calendar className="mr-2 text-[#ff6a88]" /> Upcoming

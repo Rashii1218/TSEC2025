@@ -21,14 +21,20 @@ const StudentProfile = () => {
     }
   };
 
-  const streakData = [
-    { day: 'Mon', study: 3 },
-    { day: 'Tue', study: 4 },
-    { day: 'Wed', study: 5 },
-    { day: 'Thu', study: 4 },
-    { day: 'Fri', study: 3 },
-    { day: 'Sat', study: 2 },
-    { day: 'Sun', study: 1 }
+  // Yearly activity data
+  const yearlyActivity = [
+    { month: 'Jan', activity: 25 },
+    { month: 'Feb', activity: 20 },
+    { month: 'Mar', activity: 30 },
+    { month: 'Apr', activity: 15 },
+    { month: 'May', activity: 40 },
+    { month: 'Jun', activity: 35 },
+    { month: 'Jul', activity: 25 },
+    { month: 'Aug', activity: 30 },
+    { month: 'Sep', activity: 20 },
+    { month: 'Oct', activity: 10 },
+    { month: 'Nov', activity: 15 },
+    { month: 'Dec', activity: 50 }
   ];
 
   return (
@@ -84,20 +90,20 @@ const StudentProfile = () => {
             </div>
           </div>
 
-          {/* Streak Graph */}
+          {/* Yearly Activity Graph */}
           <div className="col-span-3 bg-purple-50 p-4 rounded-lg">
-            <h2 className="text-xl font-semibold mb-4 text-purple-700">Weekly Study Streak</h2>
-            <div className="flex justify-between">
-              {streakData.map((day, index) => (
+            <h2 className="text-xl font-semibold mb-4 text-purple-700">Yearly Activity</h2>
+            <div className="flex justify-between items-end">
+              {yearlyActivity.map((month, index) => (
                 <div 
                   key={index} 
                   className="flex flex-col items-center"
                 >
                   <div 
-                    style={{ height: `${day.study * 20}px` }} 
-                    className="w-6 bg-purple-500 mb-2"
+                    style={{ height: `${month.activity * 2}px` }} // Adjust bar height multiplier for better visualization
+                    className="w-6 bg-purple-500 mb-2 rounded"
                   ></div>
-                  <span>{day.day}</span>
+                  <span className="text-sm">{month.month}</span>
                 </div>
               ))}
             </div>
@@ -109,6 +115,3 @@ const StudentProfile = () => {
 };
 
 export default StudentProfile;
-
-
-
