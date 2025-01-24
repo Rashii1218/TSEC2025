@@ -313,6 +313,26 @@ app.get('/api/event/:hackname', async (req, res) => {
     res.status(500).json({ message: 'Server Error', error: err.message });
   }
 });
+app.get('/api/leaderboards', async (req, res) => {
+  try {
+    const leaderboard = await Feedback.aggregate([
+      {
+        $project: {
+          teamName: 1,
+          totalScore: {
+            $sum: ['$innovation', '$creativity', '$ux', '$businessPotential']
+          }
+        }
+      },
+      { $sort: { totalScore: -1 } }, // Sort by totalScore in descending order
+      { $limit: 3 }                 // Limit to top 3
+    ]);
+console.log(leaderboard);
+    res.status(200).json(leaderboard);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching leaderboard', error });
+  }
+});
 
 app.get('/api/leaderboard/:hackathonTitle', async (req, res) => {
   try {
@@ -463,6 +483,35 @@ app.post('/api/ver', async (req, res) => {
     res.status(500).json({ message: 'Error submitting form. Please try again.' });
   }
 });
+app.get('/sub', async (req, res) => {
+  const { hackname } = req.query;  // Extract hackname from query params
+console.log(hackname);
+  if (!hackname) {
+    return res.status(400).json({ message: 'Hackathon title (hackname) is required' });
+  }
+
+  try {
+    // Find all teams for the given hackname
+    const teams = await Version.find({ hackname });
+
+    if (teams.length === 0) {
+      return res.status(404).json({ message: 'No teams found for this hackathon' });
+    }
+
+    // Map the results to include teamName, gitUrl, and a button for "Track Progress"
+    const teamData = teams.map((team) => ({
+      teamName: team.teamName,
+      gitUrl: team.gitUrl,
+    }));
+
+    // Send the team data in the response
+    res.json({ teams: teamData });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 // Start the server
 app.listen(port, () => {

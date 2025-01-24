@@ -3,10 +3,12 @@ import { Calendar, Trophy, Users, MessageCircle, Code, Award, ClipboardCheck, Bo
 import { motion } from "framer-motion";
 import { useNavigate, useParams } from 'react-router-dom';
 import Navbar from './Navbar';
+import axios from 'axios';
 
 const EventsPage = () => {
   const [iframeVisible, setIframeVisible] = useState(false);
   const [registerFormVisible, setRegisterFormVisible] = useState(false);
+  const [projectFormVisible, setProjectFormVisible] = useState(false);
   const [teamName, setTeamName] = useState('');
   const [teamMembers, setTeamMembers] = useState([{ name: '', email: '' }]);
   const [hackathonData, setHackathonData] = useState({ title: '', participants: 0 });
@@ -62,10 +64,11 @@ const EventsPage = () => {
       onClick: () => navigate('/mentor')
     },
     {
-      title: "Project Challenges",
+      title: "Project Submission",
       description: "Engage in innovative coding challenges",
       icon: Code,
-      gradient: "from-cyan-600 to-sky-500"
+      gradient: "from-cyan-600 to-sky-500",
+      onClick: () => setProjectFormVisible(true)
     },
     {
       title: "Team Registration",
@@ -163,10 +166,6 @@ const EventsPage = () => {
           </p>
         </div>
 
-        <div className="mb-16 rounded-2xl overflow-hidden shadow-2xl">
-          
-        </div>
-
         {/* Features Grid */}
         <motion.div 
           className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-16"
@@ -246,110 +245,146 @@ const EventsPage = () => {
         </div>
       </div>
 
-      {/* Modals/Forms would be added here (Team Registration, etc.) */}
+      {/* Modals/Forms */}
       {registerFormVisible && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div className="bg-slate-800 rounded-2xl p-8 w-full max-w-lg">
-      <h2 className="text-2xl font-bold text-white mb-6">Team Registration</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">Team Name</label>
-          <input
-            type="text"
-            value={teamName}
-            onChange={(e) => setTeamName(e.target.value)}
-            className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:ring-2 focus:ring-cyan-500"
-            placeholder="Enter your team name"
-            required
-          />
-        </div>
-
-        {teamMembers.map((member, index) => (
-          <div key={index} className="space-y-2">
-            <div className="flex space-x-4">
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-300 mb-1">Member Name</label>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl p-8 w-full max-w-lg">
+            <h2 className="text-2xl font-bold text-white mb-6">Team Registration</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Team Name</label>
                 <input
                   type="text"
-                  value={member.name}
-                  onChange={(e) => handleMemberChange(index, 'name', e.target.value)}
+                  value={teamName}
+                  onChange={(e) => setTeamName(e.target.value)}
                   className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:ring-2 focus:ring-cyan-500"
-                  placeholder="Enter member name"
+                  placeholder="Enter your team name"
                   required
                 />
               </div>
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-300 mb-1">Member Email</label>
-                <input
-                  type="email"
-                  value={member.email}
-                  onChange={(e) => handleMemberChange(index, 'email', e.target.value)}
-                  className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:ring-2 focus:ring-cyan-500"
-                  placeholder="Enter member email"
-                  required
-                />
-              </div>
-              {index > 0 && (
+
+              {teamMembers.map((member, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex space-x-4">
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Member Name</label>
+                      <input
+                        type="text"
+                        value={member.name}
+                        onChange={(e) => handleMemberChange(index, 'name', e.target.value)}
+                        className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:ring-2 focus:ring-cyan-500"
+                        placeholder="Enter member name"
+                        required
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Member Email</label>
+                      <input
+                        type="email"
+                        value={member.email}
+                        onChange={(e) => handleMemberChange(index, 'email', e.target.value)}
+                        className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:ring-2 focus:ring-cyan-500"
+                        placeholder="Enter member email"
+                        required
+                      />
+                    </div>
+                    {index > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveMember(index)}
+                        className="self-end bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              <div className="flex justify-between items-center">
                 <button
                   type="button"
-                  onClick={() => handleRemoveMember(index)}
-                  className="self-end bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                  onClick={handleAddMember}
+                  className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
                 >
-                  Remove
+                  Add Member
                 </button>
-              )}
-            </div>
+              </div>
+
+              <div className="flex space-x-4 mt-6">
+                <button
+                  type="submit"
+                  className="flex-1 bg-cyan-600 text-white py-3 rounded-lg hover:bg-cyan-700 transition-colors"
+                >
+                  Register Team
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRegisterFormVisible(false)}
+                  className="flex-1 bg-slate-700 text-white py-3 rounded-lg hover:bg-slate-600 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
-        ))}
-
-        <div className="flex justify-between items-center">
-          <button
-            type="button"
-            onClick={handleAddMember}
-            className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
-          >
-            Add Member
-          </button>
         </div>
+      )}
 
-        <div className="flex space-x-4 mt-6">
-          <button
-            type="submit"
-            className="flex-1 bg-cyan-600 text-white py-3 rounded-lg hover:bg-cyan-700 transition-colors"
-          >
-            Register Team
-          </button>
-          <button
-            type="button"
-            onClick={() => setRegisterFormVisible(false)}
-            className="flex-1 bg-slate-700 text-white py-3 rounded-lg hover:bg-slate-600 transition-colors"
-          >
-            Cancel
-          </button>
+      {/* Project Submission Form */}
+      {projectFormVisible && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl p-8 w-full max-w-lg">
+            <h2 className="text-2xl font-bold text-white mb-6">Submit Your Project</h2>
+            <form className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Project Name</label>
+                <input
+                  type="text"
+                  className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:ring-2 focus:ring-cyan-500"
+                  placeholder="Enter your project name"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Project Description</label>
+                <textarea
+                  rows="4"
+                  className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:ring-2 focus:ring-cyan-500"
+                  placeholder="Provide a brief description of your project"
+                  required
+                ></textarea>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">GitHub Repository (Optional)</label>
+                <input
+                  type="url"
+                  className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:ring-2 focus:ring-cyan-500"
+                  placeholder="Link to your GitHub repository"
+                />
+              </div>
+
+              <div className="flex justify-between items-center mt-6">
+                <button
+                  type="submit"
+                  className="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 transition-colors"
+                >
+                  Submit Project
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setProjectFormVisible(false)}
+                  className="bg-slate-700 text-white px-4 py-2 rounded-lg hover:bg-slate-600 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      </form>
-    </div>
-  </div>
-)}
-
-{/* Team Formation Iframe Modal */}
-{iframeVisible && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-4xl relative">
-      <button 
-        onClick={() => setIframeVisible(false)}
-        className="absolute top-4 right-4 text-white bg-red-600 hover:bg-red-700 p-2 rounded-full transition-colors"
-      >
-        Close
-      </button>
-      <iframe 
-        src="http://localhost:8501" 
-        className="w-full h-[600px] rounded-lg"
-        title="Team Formation"
-      />
-    </div>
-  </div>
-)}
+      )}
     </div>
   );
 };
