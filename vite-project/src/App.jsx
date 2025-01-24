@@ -77,7 +77,7 @@ import DocumentEditor from './Document';
 import LiveForum from "./components/Mentor";
 import JudgeDashboard from './JudgeDashboard';
 import TeamListPage from './TeamListPage';
-import Profile from './UserProfile/Profile';
+import Profile from "./UserProfile/Profile";
 import TeamForm from "./version/ver_detail";
 import StudentProfile from "./profile/Profile";
 
@@ -86,6 +86,7 @@ import ODashboard from "./organizer/ODashboard";
 import Leaderboard from "./LeaderBoard";
 import CommitHistory from "./Version";
 import Sub from "./Submission";
+import ZapierChatbot from './Chatbot';
 
 
 const App = () => {
@@ -105,7 +106,7 @@ const App = () => {
         
         <Route path="*" element={<Navigate to="/" />} />
         <Route path="/register" element={<TeamForm />} />
-        <Route path="/profile" element={<StudentProfile/>} />
+        <Route path="/profile" element={<Profile/>} />
         <Route path="/document" element={<DocumentEditor />} />
         <Route path="/mentor" element={<LiveForum />} />
         <Route path="/schedule" element={<TeamDetails />} />
@@ -116,6 +117,7 @@ const App = () => {
         <Route path="/track" element={<CommitHistory owner="Rashii1218" repo="TsecRubix25" />} />
         <Route path="/ver" element={<TeamForm/>} />
         <Route path="/sub" element={<Sub />} />
+        <Route path="/chatbot" element={<ZapierChatbot />} />
       </Routes>
     </Router>
   );
