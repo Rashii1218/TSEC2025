@@ -598,12 +598,13 @@
 
 
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import io from "socket.io-client";
+import axios from "axios";
+import dayjs from 'dayjs';
 import {
   Send,
   Users,
-  MessageCircle,
   Video,
   Clock,
   Calendar,
@@ -630,7 +631,7 @@ const LiveForum = () => {
           {/* Right Column */}
           <div className="space-y-10">
             <FAQs />
-            <AdditionalInfoCard />
+            
           </div>
         </div>
       </div>
@@ -638,30 +639,7 @@ const LiveForum = () => {
   );
 };
 
-const AdditionalInfoCard = () => {
-  return (
-    <div className="bg-white rounded-3xl shadow-xl border border-blue-100 overflow-hidden transform transition-all hover:scale-105">
-      <div className="bg-gradient-to-r from-green-600 to-blue-800 p-6">
-        <h2 className="text-3xl font-bold text-white text-center">
-          Mentor Mentee Connect
-        </h2>
-      </div>
-      <div className="p-8 text-center">
-        <p className="text-green-800 mb-6 text-lg font-medium">
-          Find the perfect time slot for your mentor connection
-        </p>
-        <a
-          href="http://localhost:8501/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block bg-gradient-to-r from-green-600 to-blue-800 text-white py-4 px-8 rounded-full text-lg font-semibold hover:scale-110 transition-transform duration-300 shadow-xl hover:shadow-2xl"
-        >
-          Get Timeslot
-        </a>
-      </div>
-    </div>
-  );
-};
+
 
 const FAQs = () => {
   const [activeIndex, setActiveIndex] = useState(null);
@@ -740,29 +718,105 @@ const PDFQuestionAnswer = () => {
   );
 };
 
-const ScheduledMeetings = () => {
-  const [meetings, setMeetings] = useState([
+// const ScheduledMeetings = () => {
+//   const [meetings, setMeetings] = useState([
 
-    {
-      mentor: "Rashi",
-      date: "2024-01-25",
-      time: "14:15",
-      meetLink: "https://meet.google.com/abc-xyz-123",
-    },
-  ]);
+//     {
+//       mentor: "Rashi",
+//       date: "2024-01-25",
+//       time: "14:15",
+//       meetLink: "https://meet.google.com/abc-xyz-123",
+//     },
+//   ]);
+//   const [isLoading, setIsLoading] = useState(false);
+
+
+//   const joinMeeting = (meetLink) => {
+//     window.open(meetLink, '_blank');
+//   };
+
+//   useEffect(() => {
+//     // Simulate fetching data
+//     setIsLoading(true);
+//     setTimeout(() => {
+//       setIsLoading(false);
+//     }, 2000);
+//   }, []);
+
+//   return (
+//     <div className="bg-white rounded-3xl shadow-xl border border-blue-100 overflow-hidden">
+//       <div className="bg-gradient-to-r from-blue-700 to-blue-900 p-6">
+//         <h2 className="text-3xl font-bold text-white text-center flex items-center justify-center">
+//           <Calendar className="mr-4" /> Upcoming Meetings
+//         </h2>
+//       </div>
+//       <div className="p-8 space-y-6">
+//         {isLoading ? (
+//           <div className="flex justify-center items-center">
+//             <div className="animate-spin border-t-4 border-blue-600 border-solid rounded-full w-16 h-16 border-t-transparent"></div>
+//           </div>
+//         ) : (
+//           meetings.map((meeting) => (
+//             <div
+//               key={meeting.id}
+//               className="bg-blue-50 p-6 rounded-2xl flex items-center justify-between hover:bg-blue-100 transition duration-300 border-2 border-blue-200 shadow-md"
+//             >
+//               <div>
+//                 <div className="flex items-center mb-3">
+//                   <Clock className="mr-3 text-blue-700" size={24} />
+//                   <span className="text-xl font-bold text-blue-900">
+//                     {meeting.mentor}
+//                   </span>
+//                 </div>
+//                 <p className="text-blue-800 text-base font-medium">{meeting.topic}</p>
+//                 <p className="text-blue-700 text-sm mt-2">
+//                   {meeting.date} at {meeting.time}
+//                 </p>
+//               </div>
+//               <button
+//                 onClick={() => joinMeeting(meeting.meetLink)}
+//                 className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-full hover:scale-110 transition-transform duration-300 flex items-center shadow-xl"
+//               >
+//                 <Video className="mr-2" /> Join Meeting
+//               </button>
+//             </div>
+//           ))
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
+
+const ScheduledMeetings = () => {
+  const [teamName, setTeamName] = useState('');
+  const [mentorData, setMentorData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const fetchMentor = async () => {
+    if (!teamName.trim()) {
+      setError('Please enter a team name.');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await axios.get('http://localhost:3000/team/mentor', {
+        params: { teamName },
+      });
+      setMentorData(response.data.mentor);
+      setError('');
+    } catch (err) {
+      setError(err.response?.data?.message || 'An error occurred');
+      setMentorData(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const joinMeeting = (meetLink) => {
     window.open(meetLink, '_blank');
   };
-
-  useEffect(() => {
-    // Simulate fetching data
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
-  }, []);
 
   return (
     <div className="bg-white rounded-3xl shadow-xl border border-blue-100 overflow-hidden">
@@ -772,73 +826,113 @@ const ScheduledMeetings = () => {
         </h2>
       </div>
       <div className="p-8 space-y-6">
+        <div className="mb-6">
+          <input
+            type="text"
+            placeholder="Enter team name"
+            value={teamName}
+            onChange={(e) => setTeamName(e.target.value)}
+            className="w-full p-4 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+          />
+          <button
+            onClick={fetchMentor}
+            className="bg-blue-600 text-white px-6 py-3 mt-4 rounded-full hover:scale-105 transition-transform duration-300 flex items-center shadow-xl"
+          >
+            Fetch Mentor
+          </button>
+        </div>
+        {error && <p className="text-red-500 font-medium">{error}</p>}
         {isLoading ? (
           <div className="flex justify-center items-center">
             <div className="animate-spin border-t-4 border-blue-600 border-solid rounded-full w-16 h-16 border-t-transparent"></div>
           </div>
-        ) : (
-          meetings.map((meeting) => (
-            <div
-              key={meeting.id}
-              className="bg-blue-50 p-6 rounded-2xl flex items-center justify-between hover:bg-blue-100 transition duration-300 border-2 border-blue-200 shadow-md"
-            >
-              <div>
-                <div className="flex items-center mb-3">
-                  <Clock className="mr-3 text-blue-700" size={24} />
-                  <span className="text-xl font-bold text-blue-900">
-                    {meeting.mentor}
-                  </span>
-                </div>
-                <p className="text-blue-800 text-base font-medium">{meeting.topic}</p>
-                <p className="text-blue-700 text-sm mt-2">
-                  {meeting.date} at {meeting.time}
-                </p>
+        ) : mentorData ? (
+          <div
+            className="bg-blue-50 p-6 rounded-2xl flex items-center justify-between hover:bg-blue-100 transition duration-300 border-2 border-blue-200 shadow-md"
+          >
+            <div>
+              <div className="flex items-center mb-3">
+                <Clock className="mr-3 text-blue-700" size={24} />
+                <span className="text-xl font-bold text-blue-900">
+                  {mentorData.name}
+                </span>
               </div>
-              <button
-                onClick={() => joinMeeting(meeting.meetLink)}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-full hover:scale-110 transition-transform duration-300 flex items-center shadow-xl"
-              >
-                <Video className="mr-2" /> Join Meeting
-              </button>
+              <p className="text-blue-700 text-sm mt-2">
+                {dayjs(mentorData.Date).format('YYYY-MM-DD')} at{' '}
+                {dayjs(mentorData.Date).format('HH:mm')}
+              </p>
             </div>
-          ))
+            <button
+              onClick={() =>
+                joinMeeting(mentorData.meetLink || 'https://meet.google.com/abc-xyz-123')
+              }
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-full hover:scale-110 transition-transform duration-300 flex items-center shadow-xl"
+            >
+              <Video className="mr-2" /> Join Meeting
+            </button>
+          </div>
+        ) : (
+          <p className="text-gray-500 font-medium text-center">
+            No mentor data available. Please fetch the mentor details.
+          </p>
         )}
       </div>
     </div>
   );
 };
 
+
+
+
 const ChatRoom = () => {
-  const [messages, setMessages] = useState([]);
-  const [message, setMessage] = useState("");
-  const [username, setUsername] = useState("");
-  const [isJoined, setIsJoined] = useState(false);
+  const [messages, setMessages] = useState([]); // Stores all messages
+  const [message, setMessage] = useState(""); // Current message input
+  const [username, setUsername] = useState(""); // User's name
+  const [roomID, setRoomID] = useState(""); // Chat room ID
+  const [isJoined, setIsJoined] = useState(false); // Whether user has joined
+  const [socket, setSocket] = useState(null); // Socket instance
 
-  const socket = io("http://localhost:5000");
-
+  // Initialize socket connection
   useEffect(() => {
-    socket.on("message", (msg) => {
-      setMessages((prevMessages) => [...prevMessages, msg]);
-    });
+    const newSocket = io("http://localhost:5000");
+    setSocket(newSocket);
 
     return () => {
-      socket.off("message");
+      newSocket.close(); // Clean up socket connection on component unmount
     };
   }, []);
 
+  // Listen for incoming messages
+  useEffect(() => {
+    if (socket && isJoined) {
+      socket.on("message", (msg) => {
+        setMessages((prevMessages) => [...prevMessages, msg]); // Add to messages
+      });
+
+      return () => {
+        socket.off("message");
+      };
+    }
+  }, [socket, isJoined]);
+
+  // Handle joining the chat
   const joinChat = (e) => {
     e.preventDefault();
-    if (username.trim()) {
+    if (username.trim() && roomID.trim() && socket) {
+      socket.emit("joinRoom", roomID); // Notify server about joining
       setIsJoined(true);
     }
   };
 
+  // Handle sending a message
   const sendMessage = (e) => {
     e.preventDefault();
-    if (message.trim()) {
-      const msgData = { username, message };
-      socket.emit("message", msgData);
-      setMessage("");
+    if (message.trim() && socket) {
+      const msgData = { username, message, roomID }; // Message data
+      socket.emit("message", msgData); // Emit message to server
+  
+      // Clear input field only
+      setMessage(""); 
     }
   };
 
@@ -858,6 +952,13 @@ const ChatRoom = () => {
               placeholder="Enter your professional username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+            />
+            <input
+              type="text"
+              className="w-full px-6 py-4 border-2 border-blue-200 rounded-full focus:border-purple-500 focus:ring-4 focus:ring-purple-200 outline-none text-lg"
+              placeholder="Enter Room ID"
+              value={roomID}
+              onChange={(e) => setRoomID(e.target.value)}
             />
             <button
               type="submit"
@@ -900,5 +1001,11 @@ const ChatRoom = () => {
     </div>
   );
 };
+
+
+
+
+
+
 
 export default LiveForum;

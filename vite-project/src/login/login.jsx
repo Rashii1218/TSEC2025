@@ -32,7 +32,10 @@ const LoginPage = () => {
         localStorage.setItem('userId', response.data.user._id);
         navigate('/');
       }
-        else {
+      else if(response.data.user.role === 'mentor'){
+        navigate('/mentorProfile');
+      }
+        else{
           navigate('/organizer');
       }
     } catch (error) {
@@ -158,6 +161,7 @@ const LoginPage = () => {
               <option value="user">User</option>
               <option value="organizer">Organizer</option>
               <option value="judge">Judge</option>
+              <option value="mentor">Mentor</option>
             </select>
           </div>
 

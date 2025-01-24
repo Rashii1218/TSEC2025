@@ -73,6 +73,31 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Clock, User, Star, CheckCircle } from 'lucide-react';
 
+const AdditionalInfoCard = () => {
+  return (
+    <div className="bg-white rounded-3xl shadow-xl border border-blue-100 overflow-hidden transform transition-all hover:scale-105">
+      <div className="bg-gradient-to-r from-green-600 to-blue-800 p-6">
+        <h2 className="text-3xl font-bold text-white text-center">
+          Mentor Mentee Connect
+        </h2>
+      </div>
+      <div className="p-8 text-center">
+        <p className="text-green-800 mb-6 text-lg font-medium">
+          Find the perfect time slot for your mentor connection
+        </p>
+        <a
+          href="http://localhost:8501/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block bg-gradient-to-r from-green-600 to-blue-800 text-white py-4 px-8 rounded-full text-lg font-semibold hover:scale-110 transition-transform duration-300 shadow-xl hover:shadow-2xl"
+        >
+          Get Timeslot
+        </a>
+      </div>
+    </div>
+  );
+};
+
 function TeamList() {
   const location = useLocation();
   const hackathonTitle = new URLSearchParams(location.search).get('hackathon');
@@ -282,6 +307,9 @@ function TeamList() {
               </div>
             </div>
           ))}
+          <div>
+            <AdditionalInfoCard />
+          </div>
         </div>
       </div>
     </div>

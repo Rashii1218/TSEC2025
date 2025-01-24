@@ -77,62 +77,62 @@ const PDFQuestionAnswer = () => {
   );
 };
 
-// const ScheduledMeetings = () => {
-//   const [meetings, setMeetings] = useState([
-//     {
-//       id: 1,
-//       mentor: "John Smith",
-//       date: "2024-02-15",
-//       time: "14:30",
-//       meetLink: "https://meet.google.com/def-nvfy-exc"
-//     },
-//     {
-//       id: 2,
-//       mentor: "Emily Chen",
-//       date: "2024-02-20",
-//       time: "16:00",
-//       meetLink: "https://meet.google.com/abc-xyz-123"
-//     }
-//   ]);
+const ScheduledMeetings = () => {
+  const [meetings, setMeetings] = useState([
+    {
+      id: 1,
+      mentor: "John Smith",
+      date: "2024-02-15",
+      time: "14:30",
+      meetLink: "https://meet.google.com/def-nvfy-exc"
+    },
+    {
+      id: 2,
+      mentor: "Emily Chen",
+      date: "2024-02-20",
+      time: "16:00",
+      meetLink: "https://meet.google.com/abc-xyz-123"
+    }
+  ]);
 
-//   const joinMeeting = (meetLink) => {
-//     window.location.href = meetLink;
-//   };
+  const joinMeeting = (meetLink) => {
+    window.location.href = meetLink;
+  };
 
-//   return (
-//     <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-//       <div className="bg-gradient-to-r from-navy-600 to-red-500 p-4">
-//         <h2 className="text-2xl font-bold text-white text-center flex items-center justify-center">
-//           <Calendar className="mr-3" /> Scheduled Meetings
-//         </h2>
-//       </div>
-//       <div className="p-6 space-y-4">
-//         {meetings.map((meeting) => (
-//           <div 
-//             key={meeting.id} 
-//             className="bg-blue-50 p-4 rounded-xl flex items-center justify-between hover:bg-blue-100 transition"
-//           >
-//             <div>
-//               <div className="flex items-center mb-2">
-//                 <Clock className="mr-2 text-navy-600" size={20} />
-//                 <span className="font-semibold text-navy-700">{meeting.mentor}</span>
-//               </div>
-//               <p className="text-gray-500 text-xs mt-1">
-//                 {meeting.date} at {meeting.time}
-//               </p>
-//             </div>
-//             <button
-//               onClick={() => joinMeeting(meeting.meetLink)}
-//               className="bg-gradient-to-r from-navy-600 to-red-500 text-white px-4 py-2 rounded-xl hover:opacity-90 transition flex items-center"
-//             >
-//               <Video className="mr-2" /> Join
-//             </button>
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// };
+  return (
+    <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+      <div className="bg-gradient-to-r from-navy-600 to-red-500 p-4">
+        <h2 className="text-2xl font-bold text-white text-center flex items-center justify-center">
+          <Calendar className="mr-3" /> Scheduled Meetings
+        </h2>
+      </div>
+      <div className="p-6 space-y-4">
+        {meetings.map((meeting) => (
+          <div 
+            key={meeting.id} 
+            className="bg-blue-50 p-4 rounded-xl flex items-center justify-between hover:bg-blue-100 transition"
+          >
+            <div>
+              <div className="flex items-center mb-2">
+                <Clock className="mr-2 text-navy-600" size={20} />
+                <span className="font-semibold text-navy-700">{meeting.mentor}</span>
+              </div>
+              <p className="text-gray-500 text-xs mt-1">
+                {meeting.date} at {meeting.time}
+              </p>
+            </div>
+            <button
+              onClick={() => joinMeeting(meeting.meetLink)}
+              className="bg-gradient-to-r from-navy-600 to-red-500 text-white px-4 py-2 rounded-xl hover:opacity-90 transition flex items-center"
+            >
+              <Video className="mr-2" /> Join
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 
 

@@ -33,10 +33,10 @@ const teamSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  scheduleTime: {
-    type: Date, // Stores the scheduled session time
-    default: null, // Initially, there’s no scheduled session
-  },
+  // scheduleTime: {
+  //   type: Date, // Stores the scheduled session time
+  //   default: null, // Initially, there’s no scheduled session
+  // },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -45,7 +45,7 @@ const teamSchema = new mongoose.Schema({
       name: String,
       email: String
     },
-    scheduleTime: Date
+  scheduleTime: Date
 });
 
 module.exports = mongoose.model('Team', teamSchema);
