@@ -77,7 +77,7 @@ import DocumentEditor from './Document';
 import LiveForum from "./components/Mentor";
 import JudgeDashboard from './JudgeDashboard';
 import TeamListPage from './TeamListPage';
-import Profile from './UserProfile/Profile';
+import Profile from "./UserProfile/Profile";
 import TeamForm from "./version/ver_detail";
 import StudentProfile from "./profile/Profile";
 
@@ -104,7 +104,7 @@ const App = () => {
         
         <Route path="*" element={<Navigate to="/" />} />
         <Route path="/register" element={<TeamForm />} />
-        <Route path="/profile" element={<StudentProfile/>} />
+        <Route path="/profile" element={<Profile/>} />
         <Route path="/document" element={<DocumentEditor />} />
         <Route path="/mentor" element={<LiveForum />} />
         <Route path="/schedule" element={<TeamDetails />} />
