@@ -18,6 +18,10 @@ const port = process.env.PORT || 3000;
 const kmeans = require('node-kmeans');
 const axios = require('axios');
 const Version = require('./models/Version');
+const {Analytics}= require('./models/Analytics');
+const {dummyAnalytics}= require('./models/Analytics');
+const {saveHackathonData}= require('./models/Analytics');
+const Register=require('./models/Register');
 
 // Middleware configurations
 // app.use(cors({
@@ -54,7 +58,49 @@ const interestMapping = { 'AI': 0, 'Machine Learning': 1, 'Data Science': 2, 'We
 
  // Import K-Means library
 
+
+
+
+ // Register endpoint
+ app.post('/api/register', async (req, res) => {
+   const { name, email, university, major, graduation, password } = req.body;
+ console.log(req.body)
  
+   // Validate input fields
+   if (!name || !email || !university || !major || !graduation|| !password) {
+     return res.status(400).json({ message: 'All fields are required' });
+   }
+ 
+   try {
+     // Check if user already exists
+     const existingUser = await User.findOne({ email });
+     console.log(existingUser);
+     if (existingUser) {
+       return res.status(409).json({ message: 'User already exists' });
+     }
+ 
+     // Hash the password
+     
+ 
+     // Create new user
+     const newUser = new Register({
+       name,
+       email,
+       university,
+       major,
+       graduationYear:graduation,
+       password: password,
+     });
+     console.log()
+     await newUser.save();
+ 
+     res.status(201).json({ message: 'User registered successfully', user: newUser });
+   } catch (err) {
+     res.status(500).json({ message: 'Server error' });
+   }
+ });
+
+
 
 app.post("/api/recommendStudents", async (req, res) => {
   const { skill, interest, participation } = req.body;

@@ -88,6 +88,7 @@ import CommitHistory from "./Version";
 import Sub from "./Submission";
 import ZapierChatbot from './Chatbot';
 import Projects from "./components/Projects";
+import RegisterPage from "./RegisterPage";
 
 const App = () => {
   return (
@@ -98,7 +99,7 @@ const App = () => {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/events" element={<EventsPage />} />
-        
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="/events/team" element={<Team />} />
         <Route path="/judgedashboard" element={<JudgeDashboard />} />
         <Route path="/teams" element={<TeamListPage />} />
