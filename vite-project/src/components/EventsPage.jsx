@@ -4,7 +4,8 @@ import { motion } from "framer-motion";
 import { useNavigate, useParams } from 'react-router-dom';
 import Navbar from './Navbar';
 import axios from 'axios';
-
+import TeamForm from '../version/ver_detail';
+import Leaderboard from './Leaderboard';
 const EventsPage = () => {
   const [iframeVisible, setIframeVisible] = useState(false);
   const [registerFormVisible, setRegisterFormVisible] = useState(false);
@@ -15,6 +16,7 @@ const EventsPage = () => {
 
   const navigate = useNavigate();
   const { title } = useParams();
+   
 
   useEffect(() => {
     const fetchHackathonData = async () => {
@@ -192,24 +194,11 @@ const EventsPage = () => {
         <div className="grid md:grid-cols-2 gap-12">
           {/* Leaderboard */}
           <div>
-            <h2 className="text-3xl font-bold text-white flex items-center mb-6">
+            <h2 className="text-3xl  font-bold text-white flex items-center mb-6">
               <Trophy className="mr-3 text-amber-400" /> Leaderboard
             </h2>
-            <div className="bg-slate-800 rounded-2xl overflow-hidden shadow-xl">
-              {leaderboard.map((team) => (
-                <div 
-                  key={team.name} 
-                  className="px-6 py-4 border-b border-slate-700 last:border-b-0 hover:bg-slate-700 transition-colors"
-                >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <span className="font-semibold text-gray-200 mr-3">#{team.rank}</span>
-                      <span className="text-lg font-bold text-white">{team.name}</span>
-                    </div>
-                    <span className="text-emerald-400 font-bold">{team.points} pts</span>
-                  </div>
-                </div>
-              ))}
+            <div className="mt-10 bg-slate-800 rounded-2xl overflow-hidden shadow-xl">
+              <Leaderboard />
             </div>
           </div>
 
@@ -333,58 +322,24 @@ const EventsPage = () => {
 
       {/* Project Submission Form */}
       {projectFormVisible && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl p-8 w-full max-w-lg">
-            <h2 className="text-2xl font-bold text-white mb-6">Submit Your Project</h2>
-            <form className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Project Name</label>
-                <input
-                  type="text"
-                  className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:ring-2 focus:ring-cyan-500"
-                  placeholder="Enter your project name"
-                  required
-                />
-              </div>
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-slate-800 rounded-2xl p-8 w-full max-w-lg text-gray-300"> {/* Set text color here */}
+      <h2 className="text-2xl font-bold text-white mb-6">Submit Your Project</h2>
+      {/* Add TeamForm here */}
+      <TeamForm />
+      <div className="flex justify-between items-center mt-6">
+        <button
+          type="button"
+          onClick={() => setProjectFormVisible(false)}
+          className="bg-slate-700 text-white px-4 py-2 rounded-lg hover:bg-slate-600 transition-colors"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Project Description</label>
-                <textarea
-                  rows="4"
-                  className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:ring-2 focus:ring-cyan-500"
-                  placeholder="Provide a brief description of your project"
-                  required
-                ></textarea>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">GitHub Repository (Optional)</label>
-                <input
-                  type="url"
-                  className="w-full bg-slate-700 text-white rounded-lg px-3 py-2 border border-slate-600 focus:ring-2 focus:ring-cyan-500"
-                  placeholder="Link to your GitHub repository"
-                />
-              </div>
-
-              <div className="flex justify-between items-center mt-6">
-                <button
-                  type="submit"
-                  className="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 transition-colors"
-                >
-                  Submit Project
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setProjectFormVisible(false)}
-                  className="bg-slate-700 text-white px-4 py-2 rounded-lg hover:bg-slate-600 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

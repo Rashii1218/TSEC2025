@@ -47,7 +47,7 @@ const TeamForm = () => {
         <div className="mb-4">
           <label 
             htmlFor="hackname" 
-            className="block text-navy-700 font-semibold mb-2"
+            className="block text-navy-700 font-bold mb-2"
           >
             Hackname:
           </label>
