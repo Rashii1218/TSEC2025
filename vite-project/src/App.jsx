@@ -89,6 +89,7 @@ import Sub from "./Submission";
 import ZapierChatbot from './Chatbot';
 import Projects from "./components/Projects";
 import MentorProfile from "./MentorProfile/MentorProfile";
+import RegisterPage from "./RegisterPage";
 
 const App = () => {
   return (
@@ -100,6 +101,7 @@ const App = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/events" element={<EventsPage />} />
         <Route path="/mentorProfile" element={<MentorProfile/>} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="/events/team" element={<Team />} />
         <Route path="/judgedashboard" element={<JudgeDashboard />} />
         <Route path="/teams" element={<TeamListPage />} />

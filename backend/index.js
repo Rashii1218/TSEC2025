@@ -18,6 +18,10 @@ const port = process.env.PORT || 3000;
 const kmeans = require('node-kmeans');
 const axios = require('axios');
 const Version = require('./models/Version');
+const {Analytics}= require('./models/Analytics');
+const {dummyAnalytics}= require('./models/Analytics');
+const {saveHackathonData}= require('./models/Analytics');
+const Register=require('./models/Register');
 
 // Middleware configurations
 // app.use(cors({
@@ -54,7 +58,49 @@ const interestMapping = { 'AI': 0, 'Machine Learning': 1, 'Data Science': 2, 'We
 
  // Import K-Means library
 
+
+
+
+ // Register endpoint
+ app.post('/api/register', async (req, res) => {
+   const { name, email, university, major, graduation, password } = req.body;
+ console.log(req.body)
  
+   // Validate input fields
+   if (!name || !email || !university || !major || !graduation|| !password) {
+     return res.status(400).json({ message: 'All fields are required' });
+   }
+ 
+   try {
+     // Check if user already exists
+     const existingUser = await User.findOne({ email });
+     console.log(existingUser);
+     if (existingUser) {
+       return res.status(409).json({ message: 'User already exists' });
+     }
+ 
+     // Hash the password
+     
+ 
+     // Create new user
+     const newUser = new Register({
+       name,
+       email,
+       university,
+       major,
+       graduationYear:graduation,
+       password: password,
+     });
+     console.log()
+     await newUser.save();
+ 
+     res.status(201).json({ message: 'User registered successfully', user: newUser });
+   } catch (err) {
+     res.status(500).json({ message: 'Server error' });
+   }
+ });
+
+
 
 app.post("/api/recommendStudents", async (req, res) => {
   const { skill, interest, participation } = req.body;
@@ -156,6 +202,68 @@ app.post("/api/recommendStudents", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+
+app.post("/generate-certificate", async (req, res) => {
+  const { username, hackname } = req.body;
+
+  try {
+    // HTML for certificate
+    const certificateHtml = `
+      <div style="text-align: center; font-family: Arial, sans-serif;">
+        <h1>Certificate of Achievement</h1>
+        <h3>Presented to</h3>
+        <h2>${username}</h2>
+        <h4>For successfully participating in</h4>
+        <h2>${hackname}</h2>
+        <p style="margin-top: 30px;">Issued on ${new Date().toLocaleDateString()}</p>
+      </div>
+    `;
+
+    const options = { format: "A4", path: "./certificates/certificate.pdf" };
+
+    // Generate PDF
+    const file = { content: certificateHtml };
+    await htmlPdf.generatePdf(file, options);
+
+    // Set up email
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: "dcmaureenmiranda@gmail.com",
+        pass: "jlej tfht ygjs zsrn",
+      },
+    });
+
+    const mailOptions = {
+      from: "dcmaureenmiranda@gmail.com",
+      to: "maureen.miranda.22@spit.ac.in", // Replace with the user's email
+      subject: "Your Certificate",
+      text: `Hello ${username},\n\nPlease find attached your certificate for ${hackname}.`,
+      attachments: [
+        {
+          filename: "certificate.pdf",
+          path: path.join(__dirname, "./certificates/certificate.pdf"),
+        },
+      ],
+    };
+
+    // Send Email
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error sending email.");
+      }
+      console.log("Email sent:", info.response);
+      return res.status(200).json({ message: "Certificate sent successfully!" });
+    });
+  } catch (error) {
+    console.error("Error generating certificate:", error);
+    res.status(500).send("Internal Server Error.");
+  }
+});
+
+
 // Login endpoint
 app.post('/api/login', async (req, res) => {
   const { username, password, role } = req.body;
