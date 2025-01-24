@@ -50,6 +50,12 @@ const Navbar = () => {
               >
                 Leaderboard
               </Link>
+              <a
+                href="http://localhost:8501/"
+                className="text-purple-200 hover:text-orange-400 transition-colors"
+              >
+                HackIdea
+              </a>
               <button onClick={handleSignUpClick} className="bg-gradient-to-r from-orange-500 to-purple-500 hover:from-orange-400 hover:to-purple-400 text-white px-6 py-2 rounded-lg shadow-lg">
                 Sign Up
               </button>
