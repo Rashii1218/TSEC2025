@@ -51,7 +51,7 @@ const Navbar = () => {
                 Leaderboard
               </Link>
               <a
-                href="http://localhost:8501/"
+                href="http://localhost:8503/"
                 className="text-purple-200 hover:text-orange-400 transition-colors"
               >
                 HackIdea
